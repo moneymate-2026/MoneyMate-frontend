@@ -1,0 +1,19 @@
+# Flutter
+.dart_tool/
+.packages
+.pub/
+build/
+
+# Android
+android/.gradle/
+android/local.properties
+android/.cxx/
+
+# iOS
+ios/Pods/
+
+# VS Code
+.vscode/
+
+# IntelliJ / Android Studio
+.idea/
