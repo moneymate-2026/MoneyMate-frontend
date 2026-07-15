@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/features/authentication/presentation/pages/Loginpage.dart';
 
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -10,7 +9,7 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>  
+class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> logoScale;
@@ -51,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen>
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _controller.forward();
-
+    _navigateNext();
     //   _navigateNext();
   }
 
@@ -59,14 +58,16 @@ class _SplashScreenState extends State<SplashScreen>
   void dispose() {
     _controller.dispose();
     super.dispose();
-    _navigateNext();
   }
 
-   Future<void> _navigateNext() async {
-   await Future.delayed(const Duration(seconds: 3));
-     if (!mounted) return;
-    
-    Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>Loginpage()));
+  Future<void> _navigateNext() async {
+    await Future.delayed(const Duration(seconds: 4));
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => Loginpage()),
+    );
   }
 
   @override
@@ -87,7 +88,6 @@ class _SplashScreenState extends State<SplashScreen>
               children: [
                 SizedBox(height: 40),
 
-              
                 Center(
                   child: FadeTransition(
                     opacity: logoOpacity,
@@ -102,7 +102,6 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
 
-              
                 Center(
                   child: SlideTransition(
                     position: walletAnimation,
