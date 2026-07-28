@@ -21,11 +21,11 @@ class CustomTextField extends StatelessWidget {
     return TextField(
       controller: controller,
       obscureText: obscureText,
-      style: const TextStyle(color: Colors.black87), // ✅ typed text color
+      style: const TextStyle(color: Colors.black87), 
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: Colors.black38), // ✅ hint text color
-        prefixIcon: Icon(prefixIcon, color: Colors.black54), // ✅ icon color
+        hintStyle: const TextStyle(color: Colors.black38), 
+        prefixIcon: Icon(prefixIcon, color: Colors.black54), 
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: Colors.white,

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/features/authentication/controllers/Login_controller.dart';
 import 'package:flutter_application_1/features/authentication/presentation/pages/Registerpage.dart';
+import 'package:flutter_application_1/features/authentication/presentation/pages/enter_pin.dart';
 import 'package:flutter_application_1/features/authentication/widgets/custom_socialbutton.dart';
 import 'package:flutter_application_1/features/authentication/widgets/custom_textfield.dart';
-import 'package:flutter_application_1/features/navigation/presentation/pages/bottom_nav.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -107,18 +108,6 @@ class _LoginpageState extends ConsumerState<Loginpage>
                   controller: passwordController,
                   hintText: "Password",
                   prefixIcon: Icons.lock_outline,
-                  obscureText: obscurePassword,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      obscurePassword
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                          color: Colors.black,
-                    ),
-                    onPressed: () =>
-                        ref.read(obscurePasswordProvider.notifier).state =
-                            !obscurePassword,
-                  ),
                 ),
 
                 Align(
@@ -127,7 +116,7 @@ class _LoginpageState extends ConsumerState<Loginpage>
                     onPressed: () {},
                     child: const Text(
                       "Forgot Password?",
-                      style: TextStyle(color: Color(0xff6F3DFF)),
+                      style: TextStyle(color: Bkcolors.primarycolor),
                     ),
                   ),
                 ),
@@ -145,12 +134,12 @@ class _LoginpageState extends ConsumerState<Loginpage>
                     child: InkWell(
                       borderRadius: BorderRadius.circular(18),
                       onTap: () {
-                        Navigator.pushAndRemoveUntil(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const Bottomnav_page(),
+                            builder: (context) =>
+                                const EnterPinPage(), // testing ku mathram
                           ),
-                          (route) => false,
                         );
                       },
                       child: const Center(
@@ -161,7 +150,7 @@ class _LoginpageState extends ConsumerState<Loginpage>
                               "Login",
                               style: TextStyle(
                                 fontSize: 18,
-                                color: Colors.white,
+                                color: Bkcolors.whitecolor,
                               ),
                             ),
                             SizedBox(width: 10),
@@ -183,7 +172,7 @@ class _LoginpageState extends ConsumerState<Loginpage>
                     },
                     child: const Text(
                       "Create Account",
-                      style: TextStyle(color: Color(0xff6F3DFF)),
+                      style: TextStyle(color: Bkcolors.primarycolor),
                     ),
                   ),
                 ),
@@ -194,7 +183,10 @@ class _LoginpageState extends ConsumerState<Loginpage>
                     Expanded(child: Divider()),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Text("Or continue with",style: TextStyle(color: Colors.black),),
+                      child: Text(
+                        "Or continue with",
+                        style: TextStyle(color: Bkcolors.themetext),
+                      ),
                     ),
                     Expanded(child: Divider()),
                   ],
@@ -216,7 +208,7 @@ class _LoginpageState extends ConsumerState<Loginpage>
                     SizedBox(width: 12),
                     SocialLoginButton(
                       label: "Apple",
-                      icon: const Icon(Icons.apple, color: Colors.black),
+                      icon: const Icon(Icons.apple, color: Bkcolors.themetext),
                       onPressed: () {},
                     ),
                   ],
@@ -226,18 +218,22 @@ class _LoginpageState extends ConsumerState<Loginpage>
                 const Center(
                   child: Column(
                     children: [
-                      Icon(Icons.security, color: Colors.grey, size: 20),
+                      Icon(Icons.security, color: Bkcolors.logocolor, size: 20),
                       SizedBox(height: 6),
                       Text(
                         "Bank-level Security",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          fontSize: 14,color: Colors.black
+                          fontSize: 14,
+                          color: Colors.black,
                         ),
                       ),
                       Text(
                         "Your data is 100% safe with us",
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                        style: TextStyle(
+                          color: Bkcolors.logocolor,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ),
@@ -246,7 +242,10 @@ class _LoginpageState extends ConsumerState<Loginpage>
                 Center(
                   child: Text(
                     "MoneyMate v1.0.0",
-                    style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                    style: TextStyle(
+                      color: Bkcolors.logocolor.shade400,
+                      fontSize: 11,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),

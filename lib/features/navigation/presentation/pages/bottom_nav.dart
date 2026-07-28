@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/features/navigation/presentation/widgets/app_bottomnavigation_bar.dart';
+import 'package:flutter_application_1/features/savings/presentation/pages/savings_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/nav_controller.dart';
 
@@ -19,6 +20,7 @@ class Bottomnav_page extends ConsumerWidget {
     final pages = const [
       HomePage(),
       AnalyticsPage(),
+      SavingsPage(),
       WalletPage(),
       ProfilePage(),
     ];

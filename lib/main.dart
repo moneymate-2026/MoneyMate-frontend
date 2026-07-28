@@ -19,9 +19,9 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'MoneyMate',
-      theme: AppTheme.lightTheme,   // we'll create this next
+      theme: AppTheme.lightTheme,  
       darkTheme: AppTheme.darkTheme,
-      themeMode: themeMode,          // now controlled by the provider
+      themeMode: themeMode,         
       home: const SplashScreen(),
     );
   }
