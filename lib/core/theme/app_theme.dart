@@ -1,49 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/core/theme/colors.dart';
 
 class AppTheme {
+
+
+  //Dark theme settings 
+
   static final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: const Color(0xFF0D0014),
-    primaryColor: const Color(0xFF6C4AB6),
+    scaffoldBackgroundColor:  Bkcolors.scaffoldbackground,
+    primaryColor: Bkcolors.primarycolor,
     colorScheme: const ColorScheme.dark(
-      primary: Color(0xFF6C4AB6),
-      secondary: Color(0xFF9B7EDE),
-      surface: Color(0xFF1A0B2E),
+      primary: Bkcolors.primarycolor,
+      secondary:Bkcolors.secondarycolor,
+      surface: Bkcolors.surfacecolor,
     ),
     fontFamily: 'Poppins',
     textTheme: const TextTheme(
-      bodyLarge: TextStyle(color: Colors.white),
-      bodyMedium: TextStyle(color: Colors.white70),
-      titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      bodyLarge: TextStyle(color: Bkcolors.whitecolor),
+      bodyMedium: TextStyle(color: Bkcolors.whitecolor),
+      titleLarge: TextStyle(color: Bkcolors.whitecolor, fontWeight: FontWeight.bold),
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Bkcolors.trasprntcolor,
       elevation: 0,
-      iconTheme: IconThemeData(color: Colors.white),
+      iconTheme: IconThemeData(color: Bkcolors.whitecolor),
     ),
-    iconTheme: const IconThemeData(color: Colors.white),
+    iconTheme: const IconThemeData(color: Bkcolors.whitecolor),
   );
+/////////////////////////////////
+
+  //Light theme Settings
 
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
-    scaffoldBackgroundColor: const Color(0xFFF5F3FA),
-    primaryColor: const Color(0xFF6C4AB6),
+    scaffoldBackgroundColor:  Bkcolors.whitecolor,
+    primaryColor: Bkcolors.primarycolor,
     colorScheme: const ColorScheme.light(
-      primary: Color(0xFF6C4AB6),
-      secondary: Color(0xFF9B7EDE),
-      surface: Colors.white,
+      primary: Bkcolors.primarycolor,
+      secondary: Bkcolors.secondarycolor,
+      surface: Bkcolors.whitecolor,
     ),
     fontFamily: 'Poppins',
     textTheme: const TextTheme(
-      bodyLarge: TextStyle(color: Colors.black87),
-      bodyMedium: TextStyle(color: Colors.black54),
-      titleLarge: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+      bodyLarge: TextStyle(color: Bkcolors.themetext),
+      bodyMedium: TextStyle(color:  Bkcolors.themetext),
+      titleLarge: TextStyle(color:  Bkcolors.themetext, fontWeight: FontWeight.bold),
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Bkcolors.trasprntcolor,
       elevation: 0,
-      iconTheme: IconThemeData(color: Colors.black87),
+      iconTheme: IconThemeData(color:Bkcolors.themetext),
     ),
-    iconTheme: const IconThemeData(color: Colors.black87),
+    iconTheme: const IconThemeData(color:Bkcolors.themetext),
   );
 }
