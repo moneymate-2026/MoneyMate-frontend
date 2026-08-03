@@ -1,14 +1,15 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
-import 'package:flutter_application_1/core/theme/network/dio_client.dart';
+
 import 'package:flutter_application_1/features/authentication/controllers/Register.controller.dart';
+import 'package:flutter_application_1/features/authentication/datasources/otp_controller.dart';
 
 import 'package:flutter_application_1/features/authentication/presentation/pages/otp_verification_page.dart';
 import 'package:flutter_application_1/features/authentication/widgets/custom_textfield.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Registerpage extends ConsumerStatefulWidget {
+class Registerpage extends ConsumerStatefulWidget { 
   const Registerpage({super.key});
   @override
   ConsumerState<Registerpage> createState() => _RegisterPageState();
@@ -32,7 +33,6 @@ class _RegisterPageState extends ConsumerState<Registerpage> {
 
   @override
   Widget build(BuildContext context) {
-    final obscurePassword = ref.watch(obscureRegPasswordProvider);
     final agreeTerms = ref.watch(agreeTermsProvider);
 
     return Scaffold(
@@ -100,7 +100,6 @@ class _RegisterPageState extends ConsumerState<Registerpage> {
                           controller: emailController,
                           hintText: "Email",
                           prefixIcon: Icons.email_outlined,
-                        
                         ),
                         const SizedBox(height: 14),
 
@@ -151,32 +150,31 @@ class _RegisterPageState extends ConsumerState<Registerpage> {
                             child: InkWell(
                               borderRadius: BorderRadius.circular(30),
                               onTap: agreeTerms
-                                  ? () async {
-                                      try {
-                                        final authpost = Authpost();
-                                        await authpost.postauth(
-                                          usernameController.text,
-                                          phonenumberController.text,
-                                          emailController.text,
-                                          passwordController.text,
-                                        );
+                                 ? () async {
+        try {
+          final otpController = OtpController();
+          await otpController.sendOtp(emailController.text.trim());
 
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                    OtpVerificationPage(email:emailController.text ),
-                                          ),
-                                        );
-                                      } catch (e) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(content: Text(e.toString())),
-                                        );
-                                      }
-                                    }
-                                  : null,
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OtpVerificationPage(
+                fullname: usernameController.text.trim(),
+                phone: phonenumberController.text.trim(),
+                email: emailController.text.trim(),
+                password: passwordController.text.trim(),
+              ),
+            ),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(
+            SnackBar(content: Text(e.toString())),
+          );
+        }
+      }
+    : null,
                               child: const Center(
                                 child: Text(
                                   "Create Account",

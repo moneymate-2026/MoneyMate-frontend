@@ -1,10 +1,14 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_application_1/features/authentication/datasources/otp_controller.dart';
 import 'package:flutter_application_1/features/authentication/models/register_request.dart';
 
-final dio = Dio(BaseOptions(baseUrl: "https://api-gateway-dtvx.onrender.com"));
-
 class Authpost {
-  Future<String> postauth(String fullName, String phone, String email, String password) async {
+  Future<String> postauth(
+    String fullName,
+    String phone,
+    String email,
+    String password,
+  ) async {
     final request = RegisterRequest(
       fullname: fullName,
       phone: phone,
@@ -13,14 +17,24 @@ class Authpost {
     );
 
     try {
+      print("REGISTER DATA: ${request.toJson()}");
+
       final response = await dio.post(
-        "/api/v1/auth/register",
+        "/auth/user/register",
         data: request.toJson(),
       );
 
+      print("REGISTER STATUS: ${response.statusCode}");
+      print("REGISTER RESPONSE: ${response.data}");
+
       return response.data["message"] ?? "Registration successful";
-    } catch (e) {
-      throw Exception("Registration failed: $e");
+    } on DioException catch (e) {
+      print("REGISTER STATUS: ${e.response?.statusCode}");
+      print("REGISTER RESPONSE: ${e.response?.data}");
+
+      throw Exception(
+        e.response?.data?["message"] ?? "Registration failed",
+      );
     }
   }
 }
