@@ -3,7 +3,7 @@ import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/features/authentication/controllers/enter_pinnotifier.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_application_1/features/authentication/controllers/pin_controller.dart';
-import 'package:flutter_application_1/features/authentication/controllers/enter_pin_state_controller.dart';
+
 
 import 'package:flutter_application_1/features/authentication/widgets/custom_pin_dot_indicator.dart';
 import 'package:flutter_application_1/features/authentication/widgets/custom_pin_numpad.dart';

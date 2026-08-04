@@ -1,16 +1,16 @@
  class Verifyotprequest {
   final String email;
-  final String otp;
+  final String code;
 
-  Verifyotprequest({
-    required this.email,
-    required this.otp,
+   Verifyotprequest({
+     required this.email,
+    required this.code,
   });
 
   Map<String, dynamic> toJson() {
-    return {
-      'email': email,
-      'code': otp,  
-    };
-  }
-}
+  return {
+'email': email,
+    'code': code,  
+     };
+   }
+ }

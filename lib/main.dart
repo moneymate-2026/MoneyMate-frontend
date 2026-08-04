@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/authentication/presentation/pages/otp_verification_page.dart';
 import 'package:flutter_application_1/features/splash/presentation/pages/splashscreen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
@@ -22,6 +23,7 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,  
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,         
+      //  home: const SplashScreen(),
       home: const SplashScreen(),
     );
   }

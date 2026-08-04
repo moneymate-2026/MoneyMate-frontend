@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 /// Handles saving, loading, and checking the user's PIN
 /// using SharedPreferences (local storage).
@@ -8,11 +9,15 @@ class PinController extends StateNotifier<String?> {
 
   static const String _pinKey = 'user_pin';
 
+  static const FlutterSecureStorage _storage=FlutterSecureStorage();
+
   /// Save the PIN to local storage.
   Future<void> savePin(String pin) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_pinKey, pin);
+            await _storage.write(
+        key: _pinKey,
+        value: pin,
+      );
       state = pin;
     } catch (e) {
       print('Failed to save PIN: $e');
@@ -22,8 +27,9 @@ class PinController extends StateNotifier<String?> {
   /// Load the saved PIN from local storage (null if none saved yet).
   Future<String?> loadPin() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedPin = prefs.getString(_pinKey);
+         final savedPin = await _storage.read(
+        key: _pinKey,
+         );
       state = savedPin;
       return savedPin;
     } catch (e) {
@@ -36,8 +42,10 @@ class PinController extends StateNotifier<String?> {
   /// whether to show Create PIN or Enter PIN screen).
   Future<bool> hasPin() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.containsKey(_pinKey);
+    final savedPin = await _storage.read(
+        key: _pinKey,
+      );
+      return savedPin !=null;
     } catch (e) {
       print('Failed to check PIN: $e');
       return false;
@@ -58,8 +66,9 @@ class PinController extends StateNotifier<String?> {
   /// Clear the saved PIN (e.g. on logout).
   Future<void> clearPin() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_pinKey);
+       await _storage.delete(
+        key: _pinKey,
+      );
       state = null;
     } catch (e) {
       print('Failed to clear PIN: $e');

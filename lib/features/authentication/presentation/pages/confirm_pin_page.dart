@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/features/authentication/controllers/pin_controller.dart';
 import 'package:flutter_application_1/features/authentication/controllers/confirm_pin_state_controller.dart';
+import 'package:flutter_application_1/features/authentication/presentation/pages/loginpage.dart';
 
 import 'package:flutter_application_1/features/authentication/widgets/custom_pin_dot_indicator.dart';
 import 'package:flutter_application_1/features/authentication/widgets/custom_pin_numpad.dart';
@@ -32,7 +33,7 @@ class _ConfirmPinPageState extends ConsumerState<ConfirmPinPage> {
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const Bottomnav_page()),
+        MaterialPageRoute(builder: (context) => const Loginpage()),
         (route) => false,
       );
     }

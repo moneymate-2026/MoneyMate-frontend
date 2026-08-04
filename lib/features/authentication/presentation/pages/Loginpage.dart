@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
-import 'package:flutter_application_1/features/authentication/controllers/Login_controller.dart';
+
 import 'package:flutter_application_1/features/authentication/presentation/pages/Registerpage.dart';
 import 'package:flutter_application_1/features/authentication/presentation/pages/enter_pin.dart';
 import 'package:flutter_application_1/features/authentication/widgets/custom_socialbutton.dart';
@@ -48,7 +48,7 @@ class _LoginpageState extends ConsumerState<Loginpage>
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final obscurePassword = ref.watch(obscurePasswordProvider);
+  
 
     return Scaffold(
       body: Container(
