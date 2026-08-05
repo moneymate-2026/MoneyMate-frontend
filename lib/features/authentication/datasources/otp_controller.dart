@@ -1,22 +1,13 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_application_1/features/authentication/datasources/dio_interceptor.dart';
 
-final dio = Dio(
-  BaseOptions(
-    baseUrl: "https://auth-service-z1hg.onrender.com",
-  ),
-)..interceptors.add(
-    LogInterceptor(
-      requestBody: true,
-      responseBody: true,
-      requestHeader: true,
-    ),
-  );
+
 
 class OtpController {
   Future<void> sendOtp(String email) async {
     try {
       await dio.post(
-        "/auth/otp/send",
+        "/api/v1/auth/otp/send",
         data: {
           "email": email,
         },
@@ -29,7 +20,7 @@ class OtpController {
   Future<bool> verifyOtp(String email, String code) async {
   try {
     final response = await dio.post(
-      "/auth/otp/verify",
+      "/api/v1/auth/otp/verify",
       data: {
         "email": email,
         "code": code,
@@ -44,9 +35,17 @@ class OtpController {
     print("STATUS: ${e.response?.statusCode}");
     print("RESPONSE: ${e.response?.data}");
 
-    throw Exception(
-      e.response?.data?['message'] ?? 'Failed to verify OTP',
-    );
+    final data = e.response?.data;
+
+    if (data is Map<String, dynamic>) {
+      throw Exception(
+        data['message']?.toString() ?? 'Failed to verify OTP',
+      );
+    } else {
+      throw Exception(
+        data?.toString() ?? 'Failed to verify OTP',
+      );
+    }
   }
 }
 }

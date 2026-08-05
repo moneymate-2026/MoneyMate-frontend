@@ -15,21 +15,7 @@ class HomePage extends ConsumerWidget {
     final isDark = themeMode == ThemeMode.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        actions: [
-          IconButton(
-            icon: Icon(
-              isDark ? Icons.dark_mode : Icons.light_mode,
-              color: Theme.of(context).iconTheme.color,
-            ),
-            onPressed: () {
-              ref.read(themeModeProvider.notifier).state =
-                  isDark ? ThemeMode.light : ThemeMode.dark;
-            },
-          ),
-        ],
-      ),
+     
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),

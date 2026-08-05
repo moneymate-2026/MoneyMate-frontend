@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
+import 'package:flutter_application_1/features/authentication/datasources/login_service.dart';
+import 'package:flutter_application_1/supportcustomer/presentation/pages/support.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_application_1/core/theme/theme_controller.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -17,8 +19,12 @@ class ProfilePage extends ConsumerWidget {
     final mutedColor = isDark ? Colors.grey[400] : Colors.grey;
     final cardColor = isDark ? Bkcolors.darkcardcolor : Bkcolors.whitecolor;
     final dividerColor = isDark ? Bkcolors.darkbordercolor : Colors.grey[200];
-    final pageBackground = isDark ? Bkcolors.scaffoldbackground : Colors.grey[100];
-    final iconBubbleColor = isDark ? Bkcolors.darkcardcolor : Colors.deepPurple[50];
+    final pageBackground = isDark
+        ? Bkcolors.scaffoldbackground
+        : Colors.grey[100];
+    final iconBubbleColor = isDark
+        ? Bkcolors.darkcardcolor
+        : Colors.deepPurple[50];
 
     return Scaffold(
       backgroundColor: pageBackground,
@@ -28,12 +34,29 @@ class ProfilePage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               // title row
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Profile", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: textColor)),
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: textColor),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        "Profile",
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
+                      ),
+                    ),
+                  ),
+
                   Icon(Icons.settings, size: 26, color: textColor),
                 ],
               ),
@@ -52,9 +75,19 @@ class ProfilePage extends ConsumerWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Muhammed", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor)),
+                      Text(
+                        "Muhammed",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
+                      ),
                       const SizedBox(height: 2),
-                      Text("muhammed@email.com", style: TextStyle(color: mutedColor)),
+                      Text(
+                        "muhammed@email.com",
+                        style: TextStyle(color: mutedColor),
+                      ),
                     ],
                   ),
                 ],
@@ -71,10 +104,16 @@ class ProfilePage extends ConsumerWidget {
                       CircleAvatar(
                         radius: 22,
                         backgroundColor: iconBubbleColor,
-                        child: const Icon(Icons.person_outline, color: Bkcolors.primarycolor),
+                        child: const Icon(
+                          Icons.person_outline,
+                          color: Bkcolors.primarycolor,
+                        ),
                       ),
                       const SizedBox(height: 6),
-                      Text("Personal Info", style: TextStyle(fontSize: 11, color: textColor)),
+                      Text(
+                        "Personal Info",
+                        style: TextStyle(fontSize: 11, color: textColor),
+                      ),
                     ],
                   ),
                   Column(
@@ -82,32 +121,62 @@ class ProfilePage extends ConsumerWidget {
                       CircleAvatar(
                         radius: 22,
                         backgroundColor: iconBubbleColor,
-                        child: const Icon(Icons.shield_outlined, color: Bkcolors.primarycolor),
+                        child: const Icon(
+                          Icons.shield_outlined,
+                          color: Bkcolors.primarycolor,
+                        ),
                       ),
                       const SizedBox(height: 6),
-                      Text("Security", style: TextStyle(fontSize: 11, color: textColor)),
+                      Text(
+                        "Security",
+                        style: TextStyle(fontSize: 11, color: textColor),
+                      ),
                     ],
                   ),
                   Column(
                     children: [
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundColor: iconBubbleColor,
-                        child: const Icon(Icons.settings_outlined, color: Bkcolors.primarycolor),
+                      GestureDetector(
+                        onTap: () {
+                          ref.read(themeModeProvider.notifier).state = isDark
+                              ? ThemeMode.light
+                              : ThemeMode.dark;
+                        },
+                        child: CircleAvatar(
+                          radius: 22,
+                          backgroundColor: iconBubbleColor,
+                          child:  Icon(
+                          isDark ? Icons.light_mode : Icons.dark_mode,
+                            color: Bkcolors.primarycolor,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 6),
-                      Text("Preferences", style: TextStyle(fontSize: 11, color: textColor)),
+                      Text(
+                        isDark ? "Dark Mode" : "Light Mode",
+                        style: TextStyle(fontSize: 11, color: textColor),
+                      ),
                     ],
                   ),
                   Column(
                     children: [
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundColor: iconBubbleColor,
-                        child: const Icon(Icons.support_agent, color: Bkcolors.primarycolor),
+                      GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>SupportPage()));
+                        },
+                        child: CircleAvatar(
+                          radius: 22,
+                          backgroundColor: iconBubbleColor,
+                          child: const Icon(
+                            Icons.support_agent,
+                            color: Bkcolors.primarycolor,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 6),
-                      Text("Support", style: TextStyle(fontSize: 11, color: textColor)),
+                      Text(
+                        "Support",
+                        style: TextStyle(fontSize: 11, color: textColor),
+                      ),
                     ],
                   ),
                 ],
@@ -115,27 +184,47 @@ class ProfilePage extends ConsumerWidget {
 
               const SizedBox(height: 28),
 
-              Text("Account Settings", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor)),
+              Text(
+                "Account Settings",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                ),
+              ),
 
               const SizedBox(height: 10),
 
               // settings list card
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(color: cardColor, borderRadius: BorderRadius.circular(14)),
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 child: Column(
                   children: [
-
                     // Linked Accounts
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(Icons.link, color: Bkcolors.primarycolor, size: 22),
+                          const Icon(
+                            Icons.link,
+                            color: Bkcolors.primarycolor,
+                            size: 22,
+                          ),
                           const SizedBox(width: 14),
-                          Text("Linked Accounts", style: TextStyle(fontSize: 14, color: textColor)),
+                          Text(
+                            "Linked Accounts",
+                            style: TextStyle(fontSize: 14, color: textColor),
+                          ),
                           const Spacer(),
-                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
+                          Icon(
+                            Icons.chevron_right,
+                            color: mutedColor,
+                            size: 20,
+                          ),
                         ],
                       ),
                     ),
@@ -146,11 +235,22 @@ class ProfilePage extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(Icons.email_outlined, color: Bkcolors.primarycolor, size: 22),
+                          const Icon(
+                            Icons.email_outlined,
+                            color: Bkcolors.primarycolor,
+                            size: 22,
+                          ),
                           const SizedBox(width: 14),
-                          Text("OTP Verification", style: TextStyle(fontSize: 14, color: textColor)),
+                          Text(
+                            "OTP Verification",
+                            style: TextStyle(fontSize: 14, color: textColor),
+                          ),
                           const Spacer(),
-                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
+                          Icon(
+                            Icons.chevron_right,
+                            color: mutedColor,
+                            size: 20,
+                          ),
                         ],
                       ),
                     ),
@@ -161,11 +261,22 @@ class ProfilePage extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(Icons.privacy_tip_outlined, color: Bkcolors.primarycolor, size: 22),
+                          const Icon(
+                            Icons.privacy_tip_outlined,
+                            color: Bkcolors.primarycolor,
+                            size: 22,
+                          ),
                           const SizedBox(width: 14),
-                          Text("Privacy Policy", style: TextStyle(fontSize: 14, color: textColor)),
+                          Text(
+                            "Privacy Policy",
+                            style: TextStyle(fontSize: 14, color: textColor),
+                          ),
                           const Spacer(),
-                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
+                          Icon(
+                            Icons.chevron_right,
+                            color: mutedColor,
+                            size: 20,
+                          ),
                         ],
                       ),
                     ),
@@ -176,11 +287,46 @@ class ProfilePage extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(Icons.card_giftcard, color: Bkcolors.primarycolor, size: 22),
+                          const Icon(
+                            Icons.card_giftcard,
+                            color: Bkcolors.primarycolor,
+                            size: 22,
+                          ),
                           const SizedBox(width: 14),
-                          Text("Rewards", style: TextStyle(fontSize: 14, color: textColor)),
+                          Text(
+                            "Rewards",
+                            style: TextStyle(fontSize: 14, color: textColor),
+                          ),
                           const Spacer(),
-                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
+                          Icon(
+                            Icons.chevron_right,
+                            color: mutedColor,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Divider(height: 1, color: dividerColor),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.local_offer_outlined,
+                            color: Bkcolors.primarycolor,
+                            size: 22,
+                          ),
+                          const SizedBox(width: 14),
+                          Text(
+                            "Offers",
+                            style: TextStyle(fontSize: 14, color: textColor),
+                          ),
+                          const Spacer(),
+                          Icon(
+                            Icons.chevron_right,
+                            color: mutedColor,
+                            size: 20,
+                          ),
                         ],
                       ),
                     ),
@@ -191,11 +337,22 @@ class ProfilePage extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(Icons.people_outline, color: Bkcolors.primarycolor, size: 22),
+                          const Icon(
+                            Icons.people_outline,
+                            color: Bkcolors.primarycolor,
+                            size: 22,
+                          ),
                           const SizedBox(width: 14),
-                          Text("Refer & Earn", style: TextStyle(fontSize: 14, color: textColor)),
+                          Text(
+                            "Refer & Earn",
+                            style: TextStyle(fontSize: 14, color: textColor),
+                          ),
                           const Spacer(),
-                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
+                          Icon(
+                            Icons.chevron_right,
+                            color: mutedColor,
+                            size: 20,
+                          ),
                         ],
                       ),
                     ),
@@ -206,28 +363,77 @@ class ProfilePage extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(Icons.help_outline, color: Bkcolors.primarycolor, size: 22),
+                          const Icon(
+                            Icons.help_outline,
+                            color: Bkcolors.primarycolor,
+                            size: 22,
+                          ),
                           const SizedBox(width: 14),
-                          Text("Help & Support", style: TextStyle(fontSize: 14, color: textColor)),
+                          Text(
+                            "Help & Support",
+                            style: TextStyle(fontSize: 14, color: textColor),
+                          ),
                           const Spacer(),
-                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
+                          Icon(
+                            Icons.chevron_right,
+                            color: mutedColor,
+                            size: 20,
+                          ),
                         ],
                       ),
                     ),
                     Divider(height: 1, color: dividerColor),
 
                     // Log Out
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 14),
-                      child: Row(
-                        children: [
-                          Icon(Icons.logout, color: Bkcolors.redcolor, size: 22),
-                          SizedBox(width: 14),
-                          Text("Log Out", style: TextStyle(fontSize: 14, color: Bkcolors.redcolor, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                    ),
+                     InkWell(onTap: ()async{
+                       final logoutService = LogoutRemoteDataSource();
 
+  final success = await logoutService.logout();
+
+  if (success) {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.remove('access_token');
+    await prefs.remove('refresh_token');
+
+    if (!context.mounted) return;
+
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/login',
+      (route) => false,
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Logout failed'),
+      ),
+    );
+  }
+
+                     },
+                       child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.logout,
+                              color: Bkcolors.redcolor,
+                              size: 22,
+                            ),
+                            SizedBox(width: 14),
+                            Text(
+                              "Log Out",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Bkcolors.redcolor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                                           ),
+                     ),
                   ],
                 ),
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/profile/presentation/pages/profile_page.dart';
 
 class GreetingHeader extends StatelessWidget {
   final String userName;
@@ -50,10 +51,23 @@ class GreetingHeader extends StatelessWidget {
          
               },
             ),
-            CircleAvatar(
-              backgroundColor: Colors.deepPurple.shade50,
-              child: const Icon(Icons.person, color: Colors.deepPurple),
-            ),
+                 GestureDetector(onTap: () {
+                   
+                 Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfilePage()));
+
+                 },child:CircleAvatar(
+                                    backgroundColor: Colors.deepPurple.shade50,
+        child: const Icon(
+          Icons.person,
+          color: Colors.deepPurple,
+        ),
+
+
+
+
+                 ) ,)
+            
+           
           ],
         ),
       ],

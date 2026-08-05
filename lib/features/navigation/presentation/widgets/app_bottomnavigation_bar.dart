@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/nav_controller.dart';
-// adjust path to where Bkcolors actually lives
 
 class AppBottomNavBar extends ConsumerWidget {
   const AppBottomNavBar({super.key});
@@ -15,34 +14,69 @@ class AppBottomNavBar extends ConsumerWidget {
 
     return CurvedNavigationBar(
       index: selectedIndex,
+
+      // Background behind the curved navbar
       backgroundColor: Bkcolors.trasprntcolor,
-      color: isDark ? Bkcolors.surfacecolor : Bkcolors.whitecolor,
+
+      // Navbar background
+      color: isDark
+          ? Bkcolors.surfacecolor
+          : Bkcolors.whitecolor,
+
+      // 🔵 Raised CENTER scanner button
       buttonBackgroundColor: Bkcolors.primarycolor,
-      // stays same in both, it's your brand accent
+
+      // Animation
       animationDuration: const Duration(milliseconds: 400),
+
+      // Navbar icons
       items: [
-        Icon(
+        // 0 - HOME
+    Icon(
           Icons.home_rounded,
-          color: isDark ? Bkcolors.whitecolor : Bkcolors.surfacecolor,
+          color: isDark
+              ? Bkcolors.whitecolor
+              : Bkcolors.surfacecolor,
         ),
+
+        // 1 - ANALYTICS
         Icon(
-          Icons.pie_chart_rounded,
-          color: isDark ? Bkcolors.whitecolor : Bkcolors.surfacecolor,
+          Icons.bar_chart_rounded,
+          color: isDark
+              ? Bkcolors.whitecolor
+              : Bkcolors.surfacecolor,
+              size: 36,
         ),
-        Icon(
-          Icons.savings_rounded,
-          color: isDark ? Bkcolors.whitecolor : Bkcolors.surfacecolor,
+
+        // 2 - SCANNER ⭐ CENTER
+         Icon(
+          Icons.qr_code_scanner_rounded,
+           color: isDark
+              ? Bkcolors.whitecolor
+              : Bkcolors.surfacecolor,
+              size: 36,
         ),
+
+        // 3 - WALLET
         Icon(
           Icons.account_balance_wallet_rounded,
-          color: isDark ? Bkcolors.whitecolor : Bkcolors.surfacecolor,
+          color: isDark
+              ? Bkcolors.whitecolor
+              : Bkcolors.surfacecolor,
         ),
+
+        // 4 - PROFILE
         Icon(
-          Icons.person_rounded,
-          color: isDark ? Bkcolors.whitecolor : Bkcolors.surfacecolor,
+          Icons.savings_rounded,
+          color: isDark
+              ? Bkcolors.whitecolor
+              : Bkcolors.surfacecolor,
         ),
       ],
-      onTap: (index) => ref.read(navIndexProvider.notifier).state = index,
+
+      onTap: (index) {
+        ref.read(navIndexProvider.notifier).state = index;
+      },
     );
   }
 }
