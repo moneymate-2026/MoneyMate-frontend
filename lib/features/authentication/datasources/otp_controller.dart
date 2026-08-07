@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_application_1/features/authentication/datasources/dio_interceptor.dart';
 
 
-
+ //used to send backend email
 class OtpController {
   Future<void> sendOtp(String email) async {
     try {
@@ -12,11 +12,13 @@ class OtpController {
           "email": email,
         },
       );
-    } catch (e) {
+    }on DioException  catch (e) {
       throw Exception('Failed to send OTP: $e');
     }
   }
 
+
+             //verfying the code recieved and email
   Future<bool> verifyOtp(String email, String code) async {
   try {
     final response = await dio.post(

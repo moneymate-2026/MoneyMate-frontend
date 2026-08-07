@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_application_1/features/home/presentation/pages/widgets/balance_card.dart';
 import 'package:flutter_application_1/features/home/presentation/pages/widgets/coins_card.dart';
 import 'package:flutter_application_1/features/home/presentation/pages/widgets/greeting_header.dart';
 import 'package:flutter_application_1/features/home/presentation/pages/widgets/transaction_tile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/theme/theme_controller.dart';
 
 class HomePage extends ConsumerWidget {
+ 
   const HomePage({super.key});
+  
+ 
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final isDark = themeMode == ThemeMode.dark;
+     
 
     return Scaffold(
      
@@ -22,8 +28,7 @@ class HomePage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-           
-              const GreetingHeader (userName: 'Muhammed'),
+               const GreetingHeader(),
               const SizedBox(height: 24),
 
               const BalanceCard(balance: 25450.00),

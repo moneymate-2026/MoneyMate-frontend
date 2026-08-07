@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/features/authentication/datasources/login_service.dart';
+import 'package:flutter_application_1/features/authentication/presentation/pages/loginpage.dart';
 import 'package:flutter_application_1/supportcustomer/presentation/pages/support.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_application_1/core/theme/theme_controller.dart';
@@ -9,22 +10,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
+  Future<Map<String, String>> _getUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      "name": prefs.getString("user_name") ?? "User",
+      "email": prefs.getString("user_email") ?? "",
+    };
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // check if dark mode is on
     final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
 
-    // pick colors based on dark mode
     final textColor = isDark ? Bkcolors.whitecolor : Bkcolors.themetext;
     final mutedColor = isDark ? Colors.grey[400] : Colors.grey;
     final cardColor = isDark ? Bkcolors.darkcardcolor : Bkcolors.whitecolor;
     final dividerColor = isDark ? Bkcolors.darkbordercolor : Colors.grey[200];
-    final pageBackground = isDark
-        ? Bkcolors.scaffoldbackground
-        : Colors.grey[100];
-    final iconBubbleColor = isDark
-        ? Bkcolors.darkcardcolor
-        : Colors.deepPurple[50];
+    final pageBackground = isDark ? Bkcolors.scaffoldbackground : Colors.grey[100];
+    final iconBubbleColor = isDark ? Bkcolors.darkcardcolor : Colors.deepPurple[50];
 
     return Scaffold(
       backgroundColor: pageBackground,
@@ -34,7 +37,6 @@ class ProfilePage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // title row
               Row(
                 children: [
                   IconButton(
@@ -43,7 +45,6 @@ class ProfilePage extends ConsumerWidget {
                       Navigator.pop(context);
                     },
                   ),
-
                   Expanded(
                     child: Center(
                       child: Text(
@@ -56,46 +57,52 @@ class ProfilePage extends ConsumerWidget {
                       ),
                     ),
                   ),
-
                   Icon(Icons.settings, size: 26, color: textColor),
                 ],
               ),
 
               const SizedBox(height: 24),
 
-              // avatar + name + email
-              Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Colors.grey,
-                    child: Icon(Icons.person, color: Colors.white, size: 30),
-                  ),
-                  const SizedBox(width: 14),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              // avatar + name + email (dynamic now)
+              FutureBuilder<Map<String, String>>(
+                future: _getUserInfo(),
+                builder: (context, snapshot) {
+                  final name = snapshot.data?["name"] ?? "User";
+                  final email = snapshot.data?["email"] ?? "";
+
+                  return Row(
                     children: [
-                      Text(
-                        "Muhammed",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
-                        ),
+                      const CircleAvatar(
+                        radius: 28,
+                        backgroundColor: Colors.grey,
+                        child: Icon(Icons.person, color: Colors.white, size: 30),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        "muhammed@email.com",
-                        style: TextStyle(color: mutedColor),
+                      const SizedBox(width: 14),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            name,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            email,
+                            style: TextStyle(color: mutedColor),
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-                ],
+                  );
+                },
               ),
 
               const SizedBox(height: 28),
 
-              // 4 quick action icons, written one by one
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -144,8 +151,8 @@ class ProfilePage extends ConsumerWidget {
                         child: CircleAvatar(
                           radius: 22,
                           backgroundColor: iconBubbleColor,
-                          child:  Icon(
-                          isDark ? Icons.light_mode : Icons.dark_mode,
+                          child: Icon(
+                            isDark ? Icons.light_mode : Icons.dark_mode,
                             color: Bkcolors.primarycolor,
                           ),
                         ),
@@ -160,8 +167,8 @@ class ProfilePage extends ConsumerWidget {
                   Column(
                     children: [
                       GestureDetector(
-                        onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>SupportPage()));
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => SupportPage()));
                         },
                         child: CircleAvatar(
                           radius: 22,
@@ -195,7 +202,6 @@ class ProfilePage extends ConsumerWidget {
 
               const SizedBox(height: 10),
 
-              // settings list card
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
@@ -204,215 +210,149 @@ class ProfilePage extends ConsumerWidget {
                 ),
                 child: Column(
                   children: [
-                    // Linked Accounts
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.link,
-                            color: Bkcolors.primarycolor,
-                            size: 22,
-                          ),
+                          const Icon(Icons.link, color: Bkcolors.primarycolor, size: 22),
                           const SizedBox(width: 14),
-                          Text(
-                            "Linked Accounts",
-                            style: TextStyle(fontSize: 14, color: textColor),
-                          ),
+                          Text("Linked Accounts", style: TextStyle(fontSize: 14, color: textColor)),
                           const Spacer(),
-                          Icon(
-                            Icons.chevron_right,
-                            color: mutedColor,
-                            size: 20,
-                          ),
+                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
                         ],
                       ),
                     ),
                     Divider(height: 1, color: dividerColor),
 
-                    // OTP Verification
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.email_outlined,
-                            color: Bkcolors.primarycolor,
-                            size: 22,
-                          ),
+                          const Icon(Icons.email_outlined, color: Bkcolors.primarycolor, size: 22),
                           const SizedBox(width: 14),
-                          Text(
-                            "OTP Verification",
-                            style: TextStyle(fontSize: 14, color: textColor),
-                          ),
+                          Text("OTP Verification", style: TextStyle(fontSize: 14, color: textColor)),
                           const Spacer(),
-                          Icon(
-                            Icons.chevron_right,
-                            color: mutedColor,
-                            size: 20,
-                          ),
+                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
                         ],
                       ),
                     ),
                     Divider(height: 1, color: dividerColor),
 
-                    // Privacy Policy
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.privacy_tip_outlined,
-                            color: Bkcolors.primarycolor,
-                            size: 22,
-                          ),
+                          const Icon(Icons.privacy_tip_outlined, color: Bkcolors.primarycolor, size: 22),
                           const SizedBox(width: 14),
-                          Text(
-                            "Privacy Policy",
-                            style: TextStyle(fontSize: 14, color: textColor),
-                          ),
+                          Text("Privacy Policy", style: TextStyle(fontSize: 14, color: textColor)),
                           const Spacer(),
-                          Icon(
-                            Icons.chevron_right,
-                            color: mutedColor,
-                            size: 20,
-                          ),
+                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
                         ],
                       ),
                     ),
                     Divider(height: 1, color: dividerColor),
 
-                    // Rewards
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.card_giftcard,
-                            color: Bkcolors.primarycolor,
-                            size: 22,
-                          ),
+                          const Icon(Icons.card_giftcard, color: Bkcolors.primarycolor, size: 22),
                           const SizedBox(width: 14),
-                          Text(
-                            "Rewards",
-                            style: TextStyle(fontSize: 14, color: textColor),
-                          ),
+                          Text("Rewards", style: TextStyle(fontSize: 14, color: textColor)),
                           const Spacer(),
-                          Icon(
-                            Icons.chevron_right,
-                            color: mutedColor,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(height: 1, color: dividerColor),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.local_offer_outlined,
-                            color: Bkcolors.primarycolor,
-                            size: 22,
-                          ),
-                          const SizedBox(width: 14),
-                          Text(
-                            "Offers",
-                            style: TextStyle(fontSize: 14, color: textColor),
-                          ),
-                          const Spacer(),
-                          Icon(
-                            Icons.chevron_right,
-                            color: mutedColor,
-                            size: 20,
-                          ),
+                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
                         ],
                       ),
                     ),
                     Divider(height: 1, color: dividerColor),
 
-                    // Refer & Earn
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.people_outline,
-                            color: Bkcolors.primarycolor,
-                            size: 22,
-                          ),
+                          const Icon(Icons.local_offer_outlined, color: Bkcolors.primarycolor, size: 22),
                           const SizedBox(width: 14),
-                          Text(
-                            "Refer & Earn",
-                            style: TextStyle(fontSize: 14, color: textColor),
-                          ),
+                          Text("Offers", style: TextStyle(fontSize: 14, color: textColor)),
                           const Spacer(),
-                          Icon(
-                            Icons.chevron_right,
-                            color: mutedColor,
-                            size: 20,
-                          ),
+                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
                         ],
                       ),
                     ),
                     Divider(height: 1, color: dividerColor),
 
-                    // Help & Support
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.help_outline,
-                            color: Bkcolors.primarycolor,
-                            size: 22,
-                          ),
+                          const Icon(Icons.people_outline, color: Bkcolors.primarycolor, size: 22),
                           const SizedBox(width: 14),
-                          Text(
-                            "Help & Support",
-                            style: TextStyle(fontSize: 14, color: textColor),
-                          ),
+                          Text("Refer & Earn", style: TextStyle(fontSize: 14, color: textColor)),
                           const Spacer(),
-                          Icon(
-                            Icons.chevron_right,
-                            color: mutedColor,
-                            size: 20,
-                          ),
+                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
                         ],
                       ),
                     ),
                     Divider(height: 1, color: dividerColor),
 
-                    // Log Out
-                     InkWell(onTap: ()async{
-                       final logoutService = LogoutRemoteDataSource();
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.help_outline, color: Bkcolors.primarycolor, size: 22),
+                          const SizedBox(width: 14),
+                          Text("Help & Support", style: TextStyle(fontSize: 14, color: textColor)),
+                          const Spacer(),
+                          Icon(Icons.chevron_right, color: mutedColor, size: 20),
+                        ],
+                      ),
+                    ),
+                    Divider(height: 1, color: dividerColor),
 
-  final success = await logoutService.logout();
+                    InkWell(
+                      onTap: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (dialogContext) {
+                            return AlertDialog(
+                              title: const Text('Log Out'),
+                              content: const Text('Are you sure you want to log out?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(dialogContext, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(dialogContext, true),
+                                  child: Text(
+                                    'Log Out',
+                                    style: TextStyle(color: Bkcolors.redcolor),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
 
-  if (success) {
-    final prefs = await SharedPreferences.getInstance();
+                        if (confirmed != true) return;
+                        if (!context.mounted) return;
 
-    await prefs.remove('access_token');
-    await prefs.remove('refresh_token');
+                        final logoutService = Logoutservice();
+                        final success = await logoutService.logoutpost();
 
-    if (!context.mounted) return;
-
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/login',
-      (route) => false,
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Logout failed'),
-      ),
-    );
-  }
-
-                     },
-                       child: Padding(
+                        if (!context.mounted) return;
+                        if (success) {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => const Loginpage()),
+                            (route) => false,
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Logout failed')),
+                          );
+                        }
+                      },
+                      child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 14),
                         child: Row(
                           children: [
@@ -432,8 +372,8 @@ class ProfilePage extends ConsumerWidget {
                             ),
                           ],
                         ),
-                                           ),
-                     ),
+                      ),
+                    ),
                   ],
                 ),
               ),

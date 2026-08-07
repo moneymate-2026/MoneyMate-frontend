@@ -1,39 +1,51 @@
-import 'package:dio/dio.dart';
-import 'package:flutter_application_1/features/authentication/datasources/dio_interceptor.dart';
+    import 'package:dio/dio.dart';
+    import 'package:flutter_application_1/features/authentication/datasources/dio_interceptor.dart';
 
-import 'package:flutter_application_1/features/authentication/models/register_request.dart';
+    import 'package:flutter_application_1/features/authentication/models/register_request.dart';
+    import 'package:shared_preferences/shared_preferences.dart';
 
-class Authpost {
-  Future<String> postauth(
-  String fullName,
-  String phone,
-  String email,
-  String password,
-) async {
-  final request = RegisterRequest(
-    fullname: fullName,
-    phone: phone,
-    email: email,
-    password: password,
-  );
+    //adding models to call  the email and code only to verify
 
-  try {
-    print("REGISTER DATA: ${request.toJson()}");
+    class Authpost {
+      Future<String> postauth(
+      String fullName,
+      String phone,
+      String email,
+      String password,
+    ) async {
+      final request = RegisterRequest(
+        fullname: fullName,
+        phone: phone,
+        email: email,
+        password: password,
+      );
 
-    final response = await dio.post(
-      "/api/v1/auth/register",
-      data: request.toJson(),
-    );
+      try {
+        print("REGISTER DATA: ${request.toJson()}");
 
-    print("REGISTER STATUS: ${response.statusCode}");
-    print("REGISTER RESPONSE: ${response.data}");
+        final response = await dio.post(
+          "/api/v1/auth/register",
+          data: request.toJson(),
+        );
 
-    return response.data.toString();
-  } on DioException catch (e) {
-    print("REGISTER STATUS: ${e.response?.statusCode}");
-    print("REGISTER RESPONSE: ${e.response?.data}");
+        print("REGISTER STATUS: ${response.statusCode}");
+        print("REGISTER RESPONSE: ${response.data}");
 
-    throw Exception(e.response?.data.toString() ?? "Registration failed");
-  }
-}
-}
+
+        // Save the name locally right after successful register
+
+
+          
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("user_name", fullName);
+    await prefs.setString("user_email", email);
+
+        return response.data.toString();
+      } on DioException catch (e) {
+        print("REGISTER STATUS: ${e.response?.statusCode}");
+        print("REGISTER RESPONSE: ${e.response?.data}");
+
+        throw Exception(e.response?.data.toString() ?? "Registration failed");
+      }
+    }
+    }
