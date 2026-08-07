@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
+import 'package:flutter_application_1/features/authentication/datasources/login_service.dart';
+import 'package:flutter_application_1/features/authentication/models/login_model.dart';
 
 import 'package:flutter_application_1/features/authentication/presentation/pages/Registerpage.dart';
 import 'package:flutter_application_1/features/authentication/presentation/pages/enter_pin.dart';
+
 import 'package:flutter_application_1/features/authentication/widgets/custom_socialbutton.dart';
 import 'package:flutter_application_1/features/authentication/widgets/custom_textfield.dart';
+
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -48,7 +52,6 @@ class _LoginpageState extends ConsumerState<Loginpage>
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-  
 
     return Scaffold(
       body: Container(
@@ -100,7 +103,7 @@ class _LoginpageState extends ConsumerState<Loginpage>
 
                 CustomTextField(
                   controller: emailController,
-                  hintText: "Email or Phone",
+                  hintText: "Email",
                   prefixIcon: Icons.mail_outline,
                 ),
                 const SizedBox(height: 10),
@@ -133,14 +136,46 @@ class _LoginpageState extends ConsumerState<Loginpage>
                     color: Colors.transparent,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(18),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const EnterPinPage(), // testing ku mathram
-                          ),
+                      onTap: () async {
+                        final email = emailController.text.trim();
+                        final password = passwordController.text.trim();
+
+                        if (email.isEmpty || password.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Please enter email and password"),
+                            ),
+                          );
+                          return;
+                        }
+
+                        final loginModel = Loginmodel(
+                          email: email,
+                          password: password,
                         );
+
+                        final success = await Loginservice().loginpost(
+                          loginModel,
+                        );
+
+                        if (!mounted) return;
+
+                        if (success) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>  EnterPinPage(),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Login failed. Please check your Email&password.",
+                              ),
+                            ),
+                          );
+                        }
                       },
                       child: const Center(
                         child: Row(

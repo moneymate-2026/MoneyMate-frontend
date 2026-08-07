@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/sentmoney/presentation/pages/sentmoney_page.dart';
 
 class BalanceCard extends StatelessWidget {
   final double balance;
@@ -47,7 +48,7 @@ class BalanceCard extends StatelessWidget {
                       label: 'Add Money',
                       isPrimary: true,
                       onTap: () {
-                      
+                         Navigator.push(context, MaterialPageRoute(builder: (context)=>SendMoneyPage()));
                       },
                     ),
                   ),

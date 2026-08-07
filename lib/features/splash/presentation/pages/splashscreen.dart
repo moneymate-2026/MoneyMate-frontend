@@ -17,42 +17,45 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<Offset> walletAnimation;
   late Animation<double> textOpacity;
   late Animation<double> walletScale;
+@override
+void initState() {
+  super.initState();
 
-  @override
-  void initState() {
-    super.initState();
+  _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2200),
+  );
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2200),
-    );
+  logoScale = Tween<double>(begin: 0.7, end: 1)
+      .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
-    logoScale = Tween<double>(
-      begin: 0.7,
-      end: 1,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+  logoOpacity = Tween<double>(begin: 0, end: 1).animate(
+    CurvedAnimation(parent: _controller, curve: const Interval(0, 0.4)),
+  );
 
-    logoOpacity = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0, 0.4)),
-    );
+  walletAnimation = Tween<Offset>(
+    begin: const Offset(0, 0.4),
+    end: Offset.zero,
+  ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    walletAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.4),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+  textOpacity = Tween<double>(begin: 0, end: 1).animate(
+    CurvedAnimation(parent: _controller, curve: const Interval(0.6, 1)),
+  );
 
-    textOpacity = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.6, 1)),
-    );
-    walletScale = Tween<double>(
-      begin: 0.98,
-      end: 1.02,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  walletScale = Tween<double>(begin: 0.98, end: 1.02)
+      .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    await Future.wait([
+      precacheImage(const AssetImage("assets/fromgood.png"), context),
+      precacheImage(const AssetImage("assets/wallet_illustration.png"), context),
+    ]);
+    if (!mounted) return;
     _controller.forward();
-    _navigateNext();
-    //   _navigateNext();
-  }
+  });
+
+  _navigateNext();
+}
 
   @override
   void dispose() {

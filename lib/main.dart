@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/features/authentication/presentation/pages/otp_verification_page.dart';
+import 'package:flutter_application_1/features/authentication/datasources/dio_interceptor.dart';
+
 import 'package:flutter_application_1/features/splash/presentation/pages/splashscreen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
@@ -7,6 +8,7 @@ import 'core/theme/theme_controller.dart';
 // ... your other imports
 
 void main() {
+  setupInterceptors();
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -20,9 +22,9 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'MoneyMate',
-      theme: AppTheme.lightTheme,  
+      theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: themeMode,         
+      themeMode: themeMode,
       //  home: const SplashScreen(),
       home: const SplashScreen(),
     );

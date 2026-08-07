@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/features/navigation/presentation/widgets/app_bottomnavigation_bar.dart';
+import 'package:flutter_application_1/features/qr_scanner/presentation/pages/qr_scanner.dart';
 import 'package:flutter_application_1/features/savings/presentation/pages/savings_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/nav_controller.dart';
 
 import '../../../home/presentation/pages/home_page.dart';
 import '../../../analytics/presentation/pages/analytics_page.dart';
-import '../../../wallet/presentation/pages/wallet_page.dart';
-import '../../../profile/presentation/pages/profile_page.dart';
+import '../../../wallet/presentation/pages/widgets/wallet_page.dart';
+
 
 class Bottomnav_page extends ConsumerWidget {
   const Bottomnav_page({super.key});
@@ -20,9 +21,9 @@ class Bottomnav_page extends ConsumerWidget {
     final pages = const [
       HomePage(),
       AnalyticsPage(),
-      SavingsPage(),
+      QrScannerPage(),  
       WalletPage(),
-      ProfilePage(),
+      SavingsPage(),
     ];
 
     return Scaffold(
@@ -37,10 +38,7 @@ class Bottomnav_page extends ConsumerWidget {
                 : [const Color(0xFFF5F3FA), const Color(0xFFEDE7F6)],
           ),
         ),
-        child: IndexedStack(
-          index: selectedIndex,
-          children: pages,
-        ),
+        child: IndexedStack(index: selectedIndex, children: pages),
       ),
       bottomNavigationBar: const AppBottomNavBar(),
     );

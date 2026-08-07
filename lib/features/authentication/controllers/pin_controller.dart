@@ -3,7 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 
 /// Handles saving, loading, and checking the user's PIN
-/// using SharedPreferences (local storage).
+/// using security storage.
 class PinController extends StateNotifier<String?> {
   PinController() : super(null);
 

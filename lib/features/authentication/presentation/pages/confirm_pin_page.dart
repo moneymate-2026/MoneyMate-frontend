@@ -6,7 +6,7 @@ import 'package:flutter_application_1/features/authentication/presentation/pages
 
 import 'package:flutter_application_1/features/authentication/widgets/custom_pin_dot_indicator.dart';
 import 'package:flutter_application_1/features/authentication/widgets/custom_pin_numpad.dart';
-import 'package:flutter_application_1/features/navigation/presentation/pages/bottom_nav.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ConfirmPinPage extends ConsumerStatefulWidget {
