@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/core/theme/theme_controller.dart';
+import 'package:flutter_application_1/features/wallet/presentation/pages/paymentsucceful_page.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,6 +18,35 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
       TextEditingController(text: "500");
 
   int _selectedCategory = -1;
+  int _selectedContactIndex = -1;
+
+  // TODO(API): Replace with GET /contacts/recent
+  final List<Map<String, dynamic>> _contacts = const [
+    {
+      "initials": "AR",
+      "name": "Arun Raj",
+      "handle": "@arunraj",
+      "bg": Colors.green,
+    },
+    {
+      "initials": "FA",
+      "name": "Fathima",
+      "handle": "@fathima12",
+      "bg": Colors.green,
+    },
+    {
+      "initials": "AS",
+      "name": "Aslam",
+      "handle": "@aslam01",
+      "bg": Colors.red,
+    },
+    {
+      "initials": "Nk",
+      "name": "Nikhil",
+      "handle": "@nikhil07",
+      "bg": Colors.red,
+    },
+  ];
 
   @override
   void dispose() {
@@ -29,6 +59,7 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
     final bool isDark = themeMode == ThemeMode.dark;
+    final bool isContactSelected = _selectedContactIndex != -1;
 
     return Scaffold(
       appBar: _buildAppBar(),
@@ -41,21 +72,23 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
             const SizedBox(height: 24),
             _buildRecentContactsHeader(),
             const SizedBox(height: 12),
-            _buildRecentContacts(),
-            const SizedBox(height: 24),
-            const Text("Enter Amount",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 12),
-            _buildAmountField(isDark),
-            const SizedBox(height: 24),
-            const Text("Category (Optional)",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 12),
-            _buildCategoryGrid(isDark),
-            const SizedBox(height: 28),
-            _buildSendButton(),
-            const SizedBox(height: 16),
-            _buildSecureNote(isDark),
+            _buildRecentContacts(isDark),
+            if (isContactSelected) ...[
+              const SizedBox(height: 24),
+              const Text("Enter Amount",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 12),
+              _buildAmountField(isDark),
+              const SizedBox(height: 24),
+              const Text("Category (Optional)",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 12),
+              _buildCategoryGrid(isDark),
+              const SizedBox(height: 28),
+              _buildSendButton(),
+              const SizedBox(height: 16),
+              _buildSecureNote(isDark),
+            ],
           ],
         ),
       ),
@@ -120,32 +153,63 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
   }
 
   // TODO(API): Replace with GET /contacts/recent
-  Widget _buildRecentContacts() {
+  Widget _buildRecentContacts(bool isDark) {
     return Row(
-      children: [
-        _buildContactAvatar("AR", "Arun Raj", "@arunraj", Colors.green.shade100, Colors.green),
-        _buildContactAvatar("FA", "Fathima", "@fathima12", Colors.green.shade100, Colors.green),
-        _buildContactAvatar("AS", "Aslam", "@aslam01", Colors.red.shade100, Colors.red),
-        _buildContactAvatar("Nk", "Nikhil", "@nikhil07", Colors.red.shade100, Colors.red),
-      ],
+      children: List.generate(_contacts.length, (index) {
+        final contact = _contacts[index];
+        final Color baseColor = contact["bg"] as Color;
+        return _buildContactAvatar(
+          index: index,
+          initials: contact["initials"] as String,
+          name: contact["name"] as String,
+          handle: contact["handle"] as String,
+          bg: baseColor,
+          fg: baseColor,
+          isDark: isDark,
+        );
+      }),
     );
   }
 
-  Widget _buildContactAvatar(
-      String initials, String name, String handle, Color bg, Color fg) {
+  Widget _buildContactAvatar({
+    required int index,
+    required String initials,
+    required String name,
+    required String handle,
+    required Color bg,
+    required Color fg,
+    required bool isDark,
+  }) {
+    final bool isSelected = _selectedContactIndex == index;
+
     return Expanded(
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 26,
-            backgroundColor: bg,
-            child: Text(initials,
-                style: TextStyle(color: fg, fontWeight: FontWeight.bold)),
-          ),
-          const SizedBox(height: 6),
-          Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-          Text(handle, style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
-        ],
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedContactIndex =
+                _selectedContactIndex == index ? -1 : index;
+          });
+        },
+        child: Column(
+          children: [
+            CircleAvatar(
+              radius: 26,
+              backgroundColor: bg,
+              child: Text(initials,
+                  style: TextStyle(color: fg, fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(height: 6),
+            Text(name,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected
+                      ? fg
+                      : (isDark ? Colors.white : Colors.black),
+                )),
+            Text(handle, style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
+          ],
+        ),
       ),
     );
   }
@@ -241,7 +305,7 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
       height: 54,
       child: ElevatedButton(
         onPressed: () {
-          // TODO(API): POST /transactions/send
+           Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSuccessPage(amount: 93)));
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepPurple,

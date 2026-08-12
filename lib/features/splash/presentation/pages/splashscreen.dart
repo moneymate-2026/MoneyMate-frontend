@@ -104,7 +104,6 @@ void initState() {
                     ),
                   ),
                 ),
-
                 Center(
                   child: SlideTransition(
                     position: walletAnimation,

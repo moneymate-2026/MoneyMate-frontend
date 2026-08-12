@@ -12,12 +12,14 @@
       String phone,
       String email,
       String password,
+      String pin,
     ) async {
       final request = RegisterRequest(
         fullname: fullName,
         phone: phone,
         email: email,
         password: password,
+        pin: pin
       );
 
       try {

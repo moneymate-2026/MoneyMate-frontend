@@ -118,29 +118,23 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       if (isVerified != true) {
         return;
       }
-      final authpost = Authpost();
-      await authpost.postauth(
-        widget.fullname,
-        widget.phone,
-        widget.email,
-        widget.password,
-      );
+      
 
       if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registration Successful'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    
-      Navigator.pushAndRemoveUntil(
+         Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const CreatePinPage()),
+        MaterialPageRoute(
+          builder: (context) => CreatePinPage(
+            fullName: widget.fullname,
+            phone: widget.phone,
+            email: widget.email,
+            password: widget.password,
+          ),
+        ),
         (route) => false,
       );
+    
+    
     } catch (e) {
       ScaffoldMessenger.of(
         context,

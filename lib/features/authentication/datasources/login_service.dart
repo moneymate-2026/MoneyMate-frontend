@@ -79,43 +79,43 @@ return true;
 
   //logouting acnts,callrefkon, then reming the tokens
 
-class Logoutservice {
-  Future<bool> logoutpost() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final refreshToken = prefs.getString("refresh_token");
+  class Logoutservice {
+    Future<bool> logoutpost() async {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final refreshToken = prefs.getString("refresh_token");
 
-      print("LOGOUT REQUEST TOKEN: $refreshToken");
+        print("LOGOUT REQUEST TOKEN: $refreshToken");
 
-      final response = await dio.post(
-        "/api/v1/auth/logout",
-        data: {
-          "refresh_token": refreshToken,
-          "all_devices": true,
-        },
-      );
+        final response = await dio.post(
+          "/api/v1/auth/logout",
+          data: {
+            "refresh_token": refreshToken,
+            "all_devices": true,
+          },
+        );
 
-      print("LOGOUT STATUS: ${response.statusCode}");
-      print("LOGOUT RESPONSE: ${response.data}");
+        print("LOGOUT STATUS: ${response.statusCode}");
+        print("LOGOUT RESPONSE: ${response.data}");
 
-      await prefs.remove("access_token");
-      await prefs.remove("refresh_token");
-  
-      return true;
-    } on DioException catch (e) {
-      print("LOGOUT ERROR STATUS: ${e.response?.statusCode}");
-      print("LOGOUT ERROR RESPONSE: ${e.response?.data}");
+        await prefs.remove("access_token");
+        await prefs.remove("refresh_token");
+    
+        return true;
+      } on DioException catch (e) {
+        print("LOGOUT ERROR STATUS: ${e.response?.statusCode}");
+        print("LOGOUT ERROR RESPONSE: ${e.response?.data}");
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove("access_token");
-      await prefs.remove("refresh_token");
-      await prefs.remove("user_name");
-await prefs.remove("user_email");
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove("access_token");
+        await prefs.remove("refresh_token");
+        await prefs.remove("user_name");
+  await prefs.remove("user_email");
 
-      return false;
-    } catch (e) {
-      print("LOGOUT OTHER ERROR: $e");
-      return false;
+        return false;
+      } catch (e) {
+        print("LOGOUT OTHER ERROR: $e");
+        return false;
+      }
     }
   }
-}
