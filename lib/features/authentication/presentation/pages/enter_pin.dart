@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/features/authentication/controllers/enter_pinnotifier.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:flutter_application_1/features/authentication/controllers/pin_controller.dart';
-
+import 'package:flutter_application_1/features/authentication/datasources/login_service.dart';
+import 'package:flutter_application_1/features/authentication/models/login_model.dart';
 
 import 'package:flutter_application_1/features/authentication/widgets/custom_pin_dot_indicator.dart';
 import 'package:flutter_application_1/features/authentication/widgets/custom_pin_numpad.dart';
@@ -11,7 +11,14 @@ import 'package:flutter_application_1/features/navigation/presentation/pages/bot
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class EnterPinPage extends ConsumerStatefulWidget {
-  const EnterPinPage({super.key});
+  final String email;
+  final String password;
+
+  const EnterPinPage({
+    super.key,
+    required this.email,
+    required this.password,
+  });
 
   @override
   ConsumerState<EnterPinPage> createState() => _EnterPinPageState();
@@ -19,18 +26,9 @@ class EnterPinPage extends ConsumerStatefulWidget {
 
 class _EnterPinPageState extends ConsumerState<EnterPinPage> {
   final LocalAuthentication _localAuth = LocalAuthentication();
-  static const int pinLength = 4;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSavedPin();
-  }
-
-  Future<void> _loadSavedPin() async {
-    final pin = await ref.read(pinControllerProvider.notifier).loadPin();
-    ref.read(enterPinProvider.notifier).setSavedPin(pin);
-  }
+  static const int pinLength = 6;
+  bool _isLoading = false;
+  String? _loginError;
 
   void _goToHome() {
     Navigator.pushAndRemoveUntil(
@@ -39,18 +37,45 @@ class _EnterPinPageState extends ConsumerState<EnterPinPage> {
       (route) => false,
     );
   }
+      
+      Future<void> _onConfirmTap() async {
+  final notifier = ref.read(enterPinProvider.notifier);
+  final enteredPin = ref.read(enterPinProvider).enteredPin;
 
-  void _onConfirmTap() {
-    final notifier = ref.read(enterPinProvider.notifier);
-    if (ref.read(enterPinProvider).enteredPin.length != pinLength) return;
+  if (enteredPin.length != pinLength) return;
 
-    if (notifier.checkPin()) {
-      _goToHome();
-    }
+  setState(() {
+    _isLoading = true;
+    _loginError = null;
+  });
+
+  final loginModel = Loginmodel(
+    email: widget.email,
+    password: widget.password,
+    pin: enteredPin,
+  );
+
+  final success = await Loginservice().loginpost(loginModel);
+
+  if (!mounted) return;
+
+  setState(() {
+    _isLoading = false;
+  });
+
+  if (success) {
+    notifier.clearPin();
+    _goToHome();
+  } else {
+    setState(() {
+      _loginError = "Invalid PIN. Please try again.";
+    });
+
+    notifier.clearPin();
   }
+} 
 
   Future<void> _onBiometricTap() async {
-    final notifier = ref.read(enterPinProvider.notifier);
     try {
       final bool didAuthenticate = await _localAuth.authenticate(
         localizedReason: 'Unlock MoneyMate',
@@ -60,10 +85,14 @@ class _EnterPinPageState extends ConsumerState<EnterPinPage> {
       if (didAuthenticate) {
         _goToHome();
       } else {
-        notifier.setBiometricError('Biometric authentication failed.');
+        setState(() {
+          _loginError = 'Biometric authentication failed.';
+        });
       }
     } catch (e) {
-      notifier.setBiometricError('Biometric authentication error.');
+      setState(() {
+        _loginError = 'Biometric authentication error.';
+      });
     }
   }
 
@@ -80,7 +109,7 @@ class _EnterPinPageState extends ConsumerState<EnterPinPage> {
           child: Column(
             children: [
               const SizedBox(height: 12),
-          
+
               Image.asset(
                 "assets/createlogo.png",
                 width: 200,
@@ -88,7 +117,7 @@ class _EnterPinPageState extends ConsumerState<EnterPinPage> {
                 fit: BoxFit.contain,
               ),
               const SizedBox(height: 16),
-          
+
               const Text(
                 'Enter your pin',
                 style: TextStyle(
@@ -98,16 +127,16 @@ class _EnterPinPageState extends ConsumerState<EnterPinPage> {
                 ),
               ),
               const SizedBox(height: 24),
-          
+
               PinDotIndicator(
                 pinLength: pinLength,
                 enteredLength: pinState.enteredPin.length,
               ),
-          
-              if (pinState.errorText != null) ...[
+
+              if (_loginError != null) ...[
                 const SizedBox(height: 12),
                 Text(
-                  pinState.errorText!,
+                  _loginError!,
                   style: const TextStyle(
                     color: Bkcolors.redcolor,
                     fontSize: 13,
@@ -115,26 +144,36 @@ class _EnterPinPageState extends ConsumerState<EnterPinPage> {
                   ),
                 ),
               ],
-          
+
               const SizedBox(height: 16),
-          
+
               TextButton.icon(
-                onPressed: _onBiometricTap,
-                icon: const Icon(Icons.fingerprint, color: Bkcolors.primarycolor, size: 26),
+                onPressed: _isLoading ? null : _onBiometricTap,
+                icon: const Icon(
+                  Icons.fingerprint,
+                  color: Bkcolors.primarycolor,
+                  size: 26,
+                ),
                 label: const Text(
                   'Use fingerprint instead',
-                  style: TextStyle(color:  Bkcolors.primarycolor, fontSize: 13),
+                  style: TextStyle(color: Bkcolors.primarycolor, fontSize: 13),
                 ),
               ),
-          
-              const SizedBox(height: 16,),
-          
-              PinNumpad(
-                onNumberTap: notifier.addDigit,
-                onDeleteTap: notifier.deleteDigit,
-                onConfirmTap: _onConfirmTap,
-                showConfirmButton: isPinComplete,
-              ),
+
+              const SizedBox(height: 16),
+
+              if (_isLoading)
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 16),
+                  child: CircularProgressIndicator(),
+                )
+              else
+                PinNumpad(
+                  onNumberTap: notifier.addDigit,
+                  onDeleteTap: notifier.deleteDigit,
+                  onConfirmTap: _onConfirmTap,
+                  showConfirmButton: isPinComplete,
+                ),
               const SizedBox(height: 24),
             ],
           ),

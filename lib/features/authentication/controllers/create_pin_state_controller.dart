@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/legacy.dart';
 class CreatePinNotifier extends StateNotifier<String> {
   CreatePinNotifier() : super('');
 
-  static const int pinLength = 4;
+  static const int pinLength = 6;
 
   void addDigit(String digit) {
     if (state.length >= pinLength) return;

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 final dio = Dio(BaseOptions(baseUrl: "https://money-mate.duckdns.org",headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+        
     },));
         
 

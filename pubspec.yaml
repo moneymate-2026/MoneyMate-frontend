@@ -44,6 +44,13 @@ dependencies:
   flutter_secure_storage: ^10.3.1
   google_fonts: ^8.2.1
   mobile_scanner: ^7.4.0
+  torch_light: ^1.1.0
+  image_picker: ^1.2.3
+  lottie: ^3.3.3
+  audioplayers: ^6.7.1
+  flutter_launcher_icons: ^0.14.4
+  razorpay_flutter: ^1.4.5
+  uuid: ^4.6.0
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +65,11 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/appicon.png"
 
 # The following section is specific to Flutter packages.
 flutter:

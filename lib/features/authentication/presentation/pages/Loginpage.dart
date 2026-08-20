@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
-import 'package:flutter_application_1/features/authentication/datasources/login_service.dart';
-import 'package:flutter_application_1/features/authentication/models/login_model.dart';
-
 import 'package:flutter_application_1/features/authentication/presentation/pages/Registerpage.dart';
 import 'package:flutter_application_1/features/authentication/presentation/pages/enter_pin.dart';
-
 import 'package:flutter_application_1/features/authentication/widgets/custom_socialbutton.dart';
 import 'package:flutter_application_1/features/authentication/widgets/custom_textfield.dart';
-
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -136,7 +130,7 @@ class _LoginpageState extends ConsumerState<Loginpage>
                     color: Colors.transparent,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(18),
-                      onTap: () async {
+                      onTap: () {
                         final email = emailController.text.trim();
                         final password = passwordController.text.trim();
 
@@ -149,34 +143,15 @@ class _LoginpageState extends ConsumerState<Loginpage>
                           return;
                         }
 
-                        final loginModel = Loginmodel(
-                          email: email,
-                          password: password,
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                EnterPinPage(email: email, password: password),
+                          ),
                         );
-
-                        final success = await Loginservice().loginpost(
-                          loginModel,
-                        );
-
-                        if (!mounted) return;
-
-                        if (success) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>  EnterPinPage(),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                "Login failed. Please check your Email&password.",
-                              ),
-                            ),
-                          );
-                        }
                       },
+
                       child: const Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

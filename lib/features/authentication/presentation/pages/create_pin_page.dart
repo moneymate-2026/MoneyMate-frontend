@@ -7,14 +7,25 @@ import 'package:flutter_application_1/features/authentication/widgets/custom_pin
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CreatePinPage extends ConsumerStatefulWidget {
-  const CreatePinPage({super.key});
+  final String fullName;
+  final String phone;
+  final String email;
+  final String password;
+
+  const CreatePinPage({
+    super.key,
+    required this.fullName,
+    required this.phone,
+    required this.email,
+    required this.password,
+  });
 
   @override
   ConsumerState<CreatePinPage> createState() => _CreatePinPageState();
 }
 
 class _CreatePinPageState extends ConsumerState<CreatePinPage> {
-  static const int pinLength = 4;
+  static const int pinLength = 6;
 
   void _onConfirmTap() {
     final enteredPin = ref.read(createPinProvider);
@@ -23,7 +34,13 @@ class _CreatePinPageState extends ConsumerState<CreatePinPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ConfirmPinPage(originalPin: enteredPin),
+        builder: (context) => ConfirmPinPage(
+          originalPin: enteredPin,
+          fullName: widget.fullName,
+          phone: widget.phone,
+          email: widget.email,
+          password: widget.password,
+        ),
       ),
     );
   }
@@ -84,4 +101,4 @@ class _CreatePinPageState extends ConsumerState<CreatePinPage> {
       ),
     );
   }
-} 
+}

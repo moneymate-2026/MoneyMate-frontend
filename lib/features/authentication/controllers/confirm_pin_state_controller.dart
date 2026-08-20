@@ -24,7 +24,7 @@ class ConfirmPinState {
 class ConfirmPinNotifier extends StateNotifier<ConfirmPinState> {
   ConfirmPinNotifier() : super(const ConfirmPinState());
 
-  static const int pinLength = 4;
+  static const int pinLength = 6;
 
   void addDigit(String digit) {
     if (state.enteredPin.length >= pinLength) return;

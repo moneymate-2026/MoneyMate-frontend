@@ -1,74 +1,62 @@
+import 'package:flutter_application_1/features/authentication/datasources/login_service.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-
-/// Handles saving, loading, and checking the user's PIN
-/// using security storage.
 class PinController extends StateNotifier<String?> {
   PinController() : super(null);
 
   static const String _pinKey = 'user_pin';
+  static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  static const FlutterSecureStorage _storage=FlutterSecureStorage();
+  String? _transactionToken;
+  String? get transactionToken => _transactionToken;
 
-  /// Save the PIN to local storage.
+  
+
+    // saving the pin user entered ,not saving its like encrypting  
   Future<void> savePin(String pin) async {
     try {
-            await _storage.write(
-        key: _pinKey,
-        value: pin,
-      );
+      await _storage.write(key: _pinKey, value: 'true');
       state = pin;
     } catch (e) {
       print('Failed to save PIN: $e');
     }
   }
 
-  /// Load the saved PIN from local storage (null if none saved yet).
-  Future<String?> loadPin() async {
-    try {
-         final savedPin = await _storage.read(
-        key: _pinKey,
-         );
-      state = savedPin;
-      return savedPin;
-    } catch (e) {
-      print('Failed to load PIN: $e');
-      return null;
-    }
-  }
 
-  /// Check if a PIN has already been created (used to decide
-  /// whether to show Create PIN or Enter PIN screen).
+  // checking the pin stored then fetching the stored ,when the value have its return true ,its nothing return false;
   Future<bool> hasPin() async {
     try {
-    final savedPin = await _storage.read(
-        key: _pinKey,
-      );
-      return savedPin !=null;
+      final savedPin = await _storage.read(key: _pinKey);
+      return savedPin != null;
     } catch (e) {
       print('Failed to check PIN: $e');
       return false;
     }
   }
 
-  /// Verify an entered PIN against the saved one.
-  Future<bool> verifyPin(String enteredPin) async {
+
+       //verifying the pin , and the backend giving the token to complete verifying
+  Future<String?> verifyPinWithBackend(String enteredPin) async {
     try {
-      final savedPin = await loadPin();
-      return savedPin == enteredPin;
+      final result = await verifyPinApi(pin: enteredPin); 
+      _transactionToken = result.transactionToken;
+      return result.transactionToken;
     } catch (e) {
-      print('Failed to verify PIN: $e');
-      return false;
+      print('PIN verification failed: $e');
+      return null;
     }
   }
 
-  /// Clear the saved PIN (e.g. on logout).
+  void clearTransactionToken() {
+    _transactionToken = null;
+  }
+
+
+    //only removing the encrypted flage not stored value
   Future<void> clearPin() async {
     try {
-       await _storage.delete(
-        key: _pinKey,
-      );
+      await _storage.delete(key: _pinKey);
       state = null;
     } catch (e) {
       print('Failed to clear PIN: $e');
@@ -76,7 +64,6 @@ class PinController extends StateNotifier<String?> {
   }
 }
 
-/// Riverpod provider — call this from UI via ref.read(pinControllerProvider.notifier)
 final pinControllerProvider = StateNotifierProvider<PinController, String?>(
   (ref) => PinController(),
 );

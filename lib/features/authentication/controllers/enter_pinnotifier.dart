@@ -5,11 +5,7 @@ import 'package:flutter_riverpod/legacy.dart';
 class EnterPinNotifier extends StateNotifier<EnterPinState> {
   EnterPinNotifier() : super(const EnterPinState());
 
-  static const int pinLength = 4;
-
-  void setSavedPin(String? pin) {
-    state = state.copyWith(savedPin: pin);
-  }
+  static const int pinLength = 6;
 
   void addDigit(String digit) {
     if (state.enteredPin.length >= pinLength) return;
@@ -27,13 +23,8 @@ class EnterPinNotifier extends StateNotifier<EnterPinState> {
     );
   }
 
-  bool checkPin() {
-    if (state.enteredPin == state.savedPin) {
-      return true;
-    } else {
-      state = state.copyWith(errorText: 'Incorrect PIN. Try again.', enteredPin: '');
-      return false;
-    }
+  void clearPin() {
+    state = state.copyWith(enteredPin: '', clearError: true);
   }
 
   void setBiometricError(String message) {
