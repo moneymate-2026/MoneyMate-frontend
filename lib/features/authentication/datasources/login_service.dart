@@ -3,7 +3,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_application_1/features/authentication/datasources/dio_interceptor.dart';
 import 'package:flutter_application_1/features/authentication/models/login_model.dart';
+import 'package:flutter_application_1/features/authentication/models/verifyotp_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
       // giving email and password to backend,and saving token with share and  access tkn and also refresh token, and to see the  what happening msee the terminal
 
 class Loginservice {
@@ -16,8 +18,9 @@ class Loginservice {
         data: model.toJson(),
       );
 
-      print("LOGIN STATUS: ${response.statusCode}");
-      print("LOGIN RESPONSE: ${response.data}");
+      
+debugPrint("LOGIN STATUS: ${response.statusCode}");
+debugPrint("LOGIN RESPONSE: ${response.data}");
 
       if (response.statusCode != 200) {
         return false;
@@ -30,9 +33,8 @@ final accessToken = data?["AccessToken"];
 final refreshToken = data?["RefreshToken"];
 final userName = data?["User"]?["FullName"]; 
 
-print("ACCESS TOKEN: $accessToken");
-print("REFRESH TOKEN: $refreshToken");
-      print("USER NAME: $userName");  
+   debugPrint("USER NAME: $userName");
+      
 
 if (accessToken == null) {
   print("Login failed: access token is missing");
@@ -63,13 +65,12 @@ if (userEmail != null) {
 return true;
      
 } on  DioException catch (e) {
-      print("LOGIN ERROR STATUS: ${e.response?.statusCode}");
-      print("LOGIN ERROR RESPONSE: ${e.response?.data}");
-      print("LOGIN ERROR MESSAGE: ${e.message}");
+      debugPrint("LOGIN ERROR STATUS: ${e.response?.statusCode}");
+  debugPrint("LOGIN ERROR MESSAGE: ${e.message}");
 
       return false;
     } catch (e) {
-      print("LOGIN OTHER ERROR: $e");
+   debugPrint("LOGIN OTHER ERROR: $e");
       return false;
     }
   }
@@ -119,3 +120,20 @@ return true;
       }
     }
   }
+
+
+  Future<VerifyPinResponse> verifyPinApi({
+  required String pin,
+}) async {
+  try {
+    final response = await dio.post(
+      "/api/v1/pin/verify",
+      data: {"pin": pin},
+    );
+    return VerifyPinResponse.fromJson(response.data);
+  } on DioException catch (e) {
+    throw Exception(e.response?.data['message'] ?? 'PIN verification failed');
+  } catch (e) {
+    throw Exception('Something went wrong: $e');
+  }
+}

@@ -42,6 +42,12 @@
 @import mobile_scanner;
 #endif
 
+#if __has_include(<razorpay_flutter/RazorpayFlutterPlugin.h>)
+#import <razorpay_flutter/RazorpayFlutterPlugin.h>
+#else
+@import razorpay_flutter;
+#endif
+
 #if __has_include(<shared_preferences_foundation/SharedPreferencesPlugin.h>)
 #import <shared_preferences_foundation/SharedPreferencesPlugin.h>
 #else
@@ -63,6 +69,7 @@
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [LocalAuthPlugin registerWithRegistrar:[registry registrarForPlugin:@"LocalAuthPlugin"]];
   [MobileScannerPlugin registerWithRegistrar:[registry registrarForPlugin:@"MobileScannerPlugin"]];
+  [RazorpayFlutterPlugin registerWithRegistrar:[registry registrarForPlugin:@"RazorpayFlutterPlugin"]];
   [SharedPreferencesPlugin registerWithRegistrar:[registry registrarForPlugin:@"SharedPreferencesPlugin"]];
   [TorchLightPlugin registerWithRegistrar:[registry registrarForPlugin:@"TorchLightPlugin"]];
 }

@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
-import 'package:flutter_application_1/features/authentication/datasources/login_service.dart';
-import 'package:flutter_application_1/features/authentication/models/login_model.dart';
-
 import 'package:flutter_application_1/features/authentication/presentation/pages/Registerpage.dart';
 import 'package:flutter_application_1/features/authentication/presentation/pages/enter_pin.dart';
-
 import 'package:flutter_application_1/features/authentication/widgets/custom_socialbutton.dart';
 import 'package:flutter_application_1/features/authentication/widgets/custom_textfield.dart';
-import 'package:flutter_application_1/features/navigation/presentation/pages/bottom_nav.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 

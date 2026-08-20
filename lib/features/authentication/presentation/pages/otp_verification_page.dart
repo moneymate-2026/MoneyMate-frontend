@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_application_1/core/theme/colors.dart';
-import 'package:flutter_application_1/core/theme/network/dio_client.dart';
+
 import 'package:flutter_application_1/features/authentication/datasources/otp_controller.dart';
 
 import 'package:flutter_application_1/features/authentication/presentation/pages/create_pin_page.dart';

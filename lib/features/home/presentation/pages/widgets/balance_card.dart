@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/features/wallet/presentation/pages/addmoney_page.dart';
+import 'package:flutter_application_1/features/wallet/presentation/pages/balancedetails_page.dart';
 import 'package:flutter_application_1/features/wallet/presentation/pages/sentmoney_page.dart';
+import 'package:flutter_application_1/features/wallet/presentation/pages/transaction_page.dart';
 
 class BalanceCard extends StatelessWidget {
   final double balance;
 
-  const BalanceCard({
-    super.key,
-    required this.balance,
-  });
+  const BalanceCard({super.key, required this.balance});
+
+  String get _maskedBalance {
+    final formatted = balance.toStringAsFixed(2);
+    return '•' * formatted.length;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,19 +32,55 @@ class BalanceCard extends StatelessWidget {
               Text(
                 'Total Balance',
                 style: TextStyle(
-                  color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withOpacity(0.6),
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                '₹${balance.toStringAsFixed(2)}',
+                '₹$_maskedBalance',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+
+              
+              TextButton.icon(
+                onPressed: () async {
+                  final token = await Navigator.push<String>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TransactionPinPage(),
+                    ),
+                  );
+                  if (token == null) return;
+
+                  if (!context.mounted) return;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          BalanceDetailPage(transactionToken: token),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.visibility_outlined, size: 16),
+                label: const Text(
+                  'View Balance',
+                  style: TextStyle(fontSize: 13),
+                ),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(0, 0),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  alignment: Alignment.centerLeft,
+                ),
+              ),
+              const SizedBox(height: 12),
               Row(
                 children: [
                   Flexible(
@@ -49,7 +89,12 @@ class BalanceCard extends StatelessWidget {
                       label: 'Add Money',
                       isPrimary: true,
                       onTap: () {
-                         Navigator.push(context, MaterialPageRoute(builder: (context)=>AddMoneyPage()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddMoneyPage(),
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -60,7 +105,12 @@ class BalanceCard extends StatelessWidget {
                       label: 'Sent',
                       isPrimary: false,
                       onTap: () {
-                                         Navigator.push(context, MaterialPageRoute(builder: (context)=>SendMoneyPage()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SendMoneyPage(),
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -102,7 +152,11 @@ class BalanceCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: isPrimary ? Colors.white : Colors.black87),
+            Icon(
+              icon,
+              size: 16,
+              color: isPrimary ? Colors.white : Colors.black87,
+            ),
             const SizedBox(width: 4),
             Flexible(
               child: Text(

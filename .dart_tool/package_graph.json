@@ -22,8 +22,10 @@
         "local_auth",
         "lottie",
         "mobile_scanner",
+        "razorpay_flutter",
         "shared_preferences",
-        "torch_light"
+        "torch_light",
+        "uuid"
       ],
       "devDependencies": [
         "flutter_lints",
@@ -53,6 +55,22 @@
         "stream_channel",
         "test_api",
         "vector_math"
+      ]
+    },
+    {
+      "name": "uuid",
+      "version": "4.6.0",
+      "dependencies": [
+        "crypto",
+        "fixnum"
+      ]
+    },
+    {
+      "name": "razorpay_flutter",
+      "version": "1.4.5",
+      "dependencies": [
+        "eventify",
+        "flutter"
       ]
     },
     {
@@ -335,6 +353,23 @@
       ]
     },
     {
+      "name": "fixnum",
+      "version": "1.1.1",
+      "dependencies": []
+    },
+    {
+      "name": "crypto",
+      "version": "3.0.7",
+      "dependencies": [
+        "typed_data"
+      ]
+    },
+    {
+      "name": "eventify",
+      "version": "1.0.1",
+      "dependencies": []
+    },
+    {
       "name": "yaml",
       "version": "3.1.3",
       "dependencies": [
@@ -379,14 +414,6 @@
       "name": "args",
       "version": "2.7.0",
       "dependencies": []
-    },
-    {
-      "name": "uuid",
-      "version": "4.5.3",
-      "dependencies": [
-        "crypto",
-        "fixnum"
-      ]
     },
     {
       "name": "synchronized",
@@ -569,13 +596,6 @@
       "version": "0.0.0",
       "dependencies": [
         "flutter"
-      ]
-    },
-    {
-      "name": "crypto",
-      "version": "3.0.7",
-      "dependencies": [
-        "typed_data"
       ]
     },
     {
@@ -862,6 +882,13 @@
       ]
     },
     {
+      "name": "typed_data",
+      "version": "1.4.0",
+      "dependencies": [
+        "collection"
+      ]
+    },
+    {
       "name": "xml",
       "version": "7.0.1",
       "dependencies": [
@@ -869,11 +896,6 @@
         "meta",
         "petitparser"
       ]
-    },
-    {
-      "name": "fixnum",
-      "version": "1.1.1",
-      "dependencies": []
     },
     {
       "name": "path_provider_windows",
@@ -984,13 +1006,6 @@
       "version": "2.0.35",
       "dependencies": [
         "flutter"
-      ]
-    },
-    {
-      "name": "typed_data",
-      "version": "1.4.0",
-      "dependencies": [
-        "collection"
       ]
     },
     {

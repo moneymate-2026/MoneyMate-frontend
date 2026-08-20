@@ -4,81 +4,72 @@ import 'package:flutter_application_1/core/theme/theme_controller.dart';
 import 'package:flutter_application_1/features/profile/presentation/pages/controller/complaint.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ComplaintReportPage extends ConsumerStatefulWidget {
-  const ComplaintReportPage({super.key});
+class ComplaintPage extends ConsumerStatefulWidget {
+  const ComplaintPage({super.key});
 
   @override
-  ConsumerState<ComplaintReportPage> createState() => _ComplaintReportPageState();
+  ConsumerState<ComplaintPage> createState() => _ComplaintPageState();
 }
 
-class _ComplaintReportPageState extends ConsumerState<ComplaintReportPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _ComplaintPageState extends ConsumerState<ComplaintPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    Future.microtask(() => ref.read(complaintProvider.notifier).fetchComplaints());
-  }
+  final List<Map<String, String>> _complaints = [];
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
-    _tabController.dispose();
     _titleController.dispose();
     _descController.dispose();
     super.dispose();
   }
+Future<void> _handleSubmit() async {
+  if (_titleController.text.trim().isEmpty || _descController.text.trim().isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Add Title&Description")),
+    );
+    return;
+  }
 
-  Future<void> _handleSubmit() async {
-    if (_titleController.text.trim().isEmpty || _descController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Title")),
-      );
-      return;
-    }
-    final success = await ref
-        .read(complaintProvider.notifier)
-        .submitComplaint(_titleController.text.trim(), _descController.text.trim());
+  setState(() => _isSubmitting = true);
+  try {
+    final complaint = await postComplaint(
+      title: _titleController.text.trim(),
+      description: _descController.text.trim(),
+    );
 
-    if (!mounted) return;
-    if (success) {
+    setState(() {
+      _complaints.insert(0, {
+        "title": complaint.title,
+        "description": complaint.description,
+        "status": "Pending",
+        "adminResponse": "",
+      });
       _titleController.clear();
       _descController.clear();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Complaint submit c")));
-      _tabController.animateTo(1);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Submitgit")));
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Complaint submitted")),
+      );
     }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  } finally {
+    if (mounted) setState(() => _isSubmitting = false);
   }
+}
 
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
-    final state = ref.watch(complaintProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Complaints & Reports"),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [Tab(text: "New Complaint"), Tab(text: "My Reports")],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildSubmitTab(state.isSubmitting),
-          _buildReportsTab(isDark, state),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubmitTab(bool isSubmitting) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -102,39 +93,40 @@ class _ComplaintReportPageState extends ConsumerState<ComplaintReportPage>
           ),
           const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: isSubmitting ? null : _handleSubmit,
+            onPressed: _isSubmitting ? null : _handleSubmit,
             style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
-            child: isSubmitting
+            child: _isSubmitting
                 ? const SizedBox(
                     height: 20, width: 20,
                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                   )
                 : const Text("Submit Complaint"),
           ),
+          const SizedBox(height: 24),
+          Text("My Complaints", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: isDark ? Bkcolors.whitecolor : Bkcolors.themetext)),
+          const SizedBox(height: 10),
+          if (_complaints.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Center(child: Text("empty complaints")),
+            )
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _complaints.length,
+              itemBuilder: (context, index) => _buildCard(_complaints[index], isDark),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildReportsTab(bool isDark, ComplaintState state) {
-    if (state.isLoading) return const Center(child: CircularProgressIndicator());
-    if (state.error != null) return Center(child: Text(state.error!));
-    if (state.complaints.isEmpty) return const Center(child: Text("Ippol reports onnum illa"));
-
-    return RefreshIndicator(
-      onRefresh: () => ref.read(complaintProvider.notifier).fetchComplaints(),
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: state.complaints.length,
-        itemBuilder: (context, index) => _buildReportCard(state.complaints[index], isDark),
-      ),
-    );
-  }
-
-  Widget _buildReportCard(complaint, bool isDark) {
-    Color statusColor = complaint.status == "Resolved"
+  Widget _buildCard(Map<String, String> item, bool isDark) {
+    final status = item["status"] ?? "Pending";
+    Color statusColor = status == "Resolved"
         ? Colors.green
-        : complaint.status == "Rejected"
+        : status == "Rejected"
             ? Colors.red
             : Colors.orange;
 
@@ -152,17 +144,17 @@ class _ComplaintReportPageState extends ConsumerState<ComplaintReportPage>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(child: Text(complaint.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
+              Expanded(child: Text(item["title"] ?? "", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(color: statusColor.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
-                child: Text(complaint.status, style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.w600)),
+                child: Text(status, style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.w600)),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          Text(complaint.description, style: const TextStyle(fontSize: 13)),
-          if (complaint.adminResponse != null && complaint.adminResponse!.isNotEmpty)
+          Text(item["description"] ?? "", style: const TextStyle(fontSize: 13)),
+          if ((item["adminResponse"] ?? "").isNotEmpty)
             Container(
               margin: const EdgeInsets.only(top: 10),
               padding: const EdgeInsets.all(10),
@@ -175,7 +167,7 @@ class _ComplaintReportPageState extends ConsumerState<ComplaintReportPage>
                 children: [
                   const Text("Admin Response:", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
                   const SizedBox(height: 4),
-                  Text(complaint.adminResponse!, style: const TextStyle(fontSize: 13)),
+                  Text(item["adminResponse"] ?? "", style: const TextStyle(fontSize: 13)),
                 ],
               ),
             ),

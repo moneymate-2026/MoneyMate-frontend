@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/core/theme/theme_controller.dart';
+import 'package:flutter_application_1/features/wallet/presentation/pages/controllers/depo_controller.dart';
 import 'package:flutter_application_1/features/wallet/presentation/pages/paymentsucceful_page.dart';
+import 'package:flutter_application_1/features/wallet/presentation/pages/transaction_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AddMoneyPage extends ConsumerStatefulWidget {
@@ -34,27 +36,38 @@ class _AddMoneyPageState extends ConsumerState<AddMoneyPage> {
   double _getSavingsAmount() {
     return _getAmount() * _allocation / 100;
   }
-
   Future<void> _onAddMoney() async {
-    setState(() => _isLoading = true);
-    // 🔌 CONNECT YOUR API HERE
-    // final dio = ref.read(dioProvider);
-    // await dio.post('/api/v1/wallet/add-money', data: {
-    //   'amount': _getAmount(), 'saveToSavings': _saveToSavings, 'allocationPercent': _allocation,
-    // });
-    await Future.delayed(const Duration(seconds: 1)); // remove after wiring API
-    setState(() => _isLoading = false);
-    if (mounted) return;
-      Navigator.pushReplacement(
+  final amount = double.parse(_amountController.text);
+
+  final token = await Navigator.push<String>(
     context,
-    MaterialPageRoute(
-      builder: (context) => PaymentSuccessPage(
-        amount: _getAmount(),
-       
-      ),
-    ),
+    MaterialPageRoute(builder: (context) => const TransactionPinPage ()),
   );
-  }
+  if (token == null) return; 
+
+  setState(() => _isLoading = true);
+
+
+  final controller = DepositController(
+    onDepositSuccess: () {
+      setState(() => _isLoading = false);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PaymentSuccessPage(amount: amount)),
+      );
+    },
+    onDepositError: (message) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    },
+  );
+
+  controller.startDeposit(amount.toInt(), transactionToken: token);
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -253,7 +266,8 @@ class _AddMoneyPageState extends ConsumerState<AddMoneyPage> {
     return SizedBox(
       width: double.infinity,
       height: 54,
-      child: ElevatedButton(
+      child: ElevatedButton(  
+        
         onPressed: _isLoading ? null : _onAddMoney,
         
         style: ElevatedButton.styleFrom(

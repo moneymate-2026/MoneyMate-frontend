@@ -5,42 +5,31 @@ import 'package:flutter_application_1/features/home/presentation/pages/widgets/c
 import 'package:flutter_application_1/features/home/presentation/pages/widgets/greeting_header.dart';
 import 'package:flutter_application_1/features/home/presentation/pages/widgets/transaction_tile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../../core/theme/theme_controller.dart';
 
 class HomePage extends ConsumerWidget {
- 
   const HomePage({super.key});
-  
- 
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final isDark = themeMode == ThemeMode.dark;
-     
 
     return Scaffold(
-     
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               const GreetingHeader(),
+              const GreetingHeader(),
               const SizedBox(height: 24),
-
-              const BalanceCard(balance: 25450.00),
+              const BalanceCard(balance: 0),
               const SizedBox(height: 16),
-
-              
               const CoinsCard(coinBalance: 2450),
               const SizedBox(height: 24),
-
               _buildTransactionsHeader(context),
               const SizedBox(height: 12),
-
               ..._buildTransactionList(),
             ],
           ),
@@ -67,7 +56,6 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  
   List<Widget> _buildTransactionList() {
     return [
       const TransactionTile(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/features/authentication/datasources/login_service.dart';
 import 'package:flutter_application_1/features/authentication/presentation/pages/loginpage.dart';
-import 'package:flutter_application_1/features/profile/presentation/pages/complaint_report.dart';
+import 'package:flutter_application_1/features/profile/presentation/pages/complaint_reportpage.dart';
 import 'package:flutter_application_1/supportcustomer/presentation/pages/support.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_application_1/core/theme/theme_controller.dart';
@@ -220,56 +220,7 @@ class ProfilePage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.link,
-                            color: Bkcolors.primarycolor,
-                            size: 22,
-                          ),
-                          const SizedBox(width: 14),
-                          Text(
-                            "Linked Accounts",
-                            style: TextStyle(fontSize: 14, color: textColor),
-                          ),
-                          const Spacer(),
-                          Icon(
-                            Icons.chevron_right,
-                            color: mutedColor,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(height: 1, color: dividerColor),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.email_outlined,
-                            color: Bkcolors.primarycolor,
-                            size: 22,
-                          ),
-                          const SizedBox(width: 14),
-                          Text(
-                            "OTP Verification",
-                            style: TextStyle(fontSize: 14, color: textColor),
-                          ),
-                          const Spacer(),
-                          Icon(
-                            Icons.chevron_right,
-                            color: mutedColor,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(height: 1, color: dividerColor),
+                  children: [         
 
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 14),

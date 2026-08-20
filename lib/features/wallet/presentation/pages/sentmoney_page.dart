@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/core/theme/theme_controller.dart';
-import 'package:flutter_application_1/features/wallet/presentation/pages/paymentsucceful_page.dart';
 
+import 'package:flutter_application_1/features/wallet/presentation/pages/transaction_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SendMoneyPage extends ConsumerStatefulWidget {
@@ -14,8 +14,9 @@ class SendMoneyPage extends ConsumerStatefulWidget {
 
 class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
   final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _amountController =
-      TextEditingController(text: "500");
+  final TextEditingController _amountController = TextEditingController(
+    text: "500",
+  );
 
   int _selectedCategory = -1;
   int _selectedContactIndex = -1;
@@ -34,12 +35,7 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
       "handle": "@fathima12",
       "bg": Colors.green,
     },
-    {
-      "initials": "AS",
-      "name": "Aslam",
-      "handle": "@aslam01",
-      "bg": Colors.red,
-    },
+    {"initials": "AS", "name": "Aslam", "handle": "@aslam01", "bg": Colors.red},
     {
       "initials": "Nk",
       "name": "Nikhil",
@@ -53,6 +49,14 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
     _searchController.dispose();
     _amountController.dispose();
     super.dispose();
+  }
+
+  Future<void> _onSendMoney() async {
+    final token = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(builder: (context) => const TransactionPinPage()),
+    );
+    if (token == null) return;
   }
 
   @override
@@ -75,13 +79,17 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
             _buildRecentContacts(isDark),
             if (isContactSelected) ...[
               const SizedBox(height: 24),
-              const Text("Enter Amount",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              const Text(
+                "Enter Amount",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
               const SizedBox(height: 12),
               _buildAmountField(isDark),
               const SizedBox(height: 24),
-              const Text("Category (Optional)",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              const Text(
+                "Category (Optional)",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
               const SizedBox(height: 12),
               _buildCategoryGrid(isDark),
               const SizedBox(height: 28),
@@ -125,16 +133,22 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
         hintStyle: TextStyle(
           color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
         ),
-        prefixIcon: Icon(Icons.search,
-            color: isDark ? Colors.grey.shade400 : Colors.grey.shade700),
-        suffixIcon: Icon(Icons.fullscreen,
-            color: isDark ? Colors.grey.shade400 : Colors.grey.shade700),
+        prefixIcon: Icon(
+          Icons.search,
+          color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
+        ),
+        suffixIcon: Icon(
+          Icons.fullscreen,
+          color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
+        ),
         filled: true,
         fillColor: isDark ? Bkcolors.darkcardcolor : Colors.grey.shade100,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: isDark ? Bkcolors.darkbordercolor : Bkcolors.lightbordercolor,
+            color: isDark
+                ? Bkcolors.darkbordercolor
+                : Bkcolors.lightbordercolor,
           ),
         ),
       ),
@@ -145,14 +159,16 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text("Recent Contacts",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        const Text(
+          "Recent Contacts",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
         TextButton(onPressed: () {}, child: const Text("View All")),
       ],
     );
   }
 
-  // TODO(API): Replace with GET /contacts/recent
+  
   Widget _buildRecentContacts(bool isDark) {
     return Row(
       children: List.generate(_contacts.length, (index) {
@@ -186,8 +202,7 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
       child: GestureDetector(
         onTap: () {
           setState(() {
-            _selectedContactIndex =
-                _selectedContactIndex == index ? -1 : index;
+            _selectedContactIndex = _selectedContactIndex == index ? -1 : index;
           });
         },
         child: Column(
@@ -195,19 +210,24 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
             CircleAvatar(
               radius: 26,
               backgroundColor: bg,
-              child: Text(initials,
-                  style: TextStyle(color: fg, fontWeight: FontWeight.bold)),
+              child: Text(
+                initials,
+                style: TextStyle(color: fg, fontWeight: FontWeight.bold),
+              ),
             ),
             const SizedBox(height: 6),
-            Text(name,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected
-                      ? fg
-                      : (isDark ? Colors.white : Colors.black),
-                )),
-            Text(handle, style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? fg : (isDark ? Colors.white : Colors.black),
+              ),
+            ),
+            Text(
+              handle,
+              style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+            ),
           ],
         ),
       ),
@@ -226,27 +246,34 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
       ),
       child: Row(
         children: [
-          Text("₹",
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black)),
+          Text(
+            "₹",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
               controller: _amountController,
               keyboardType: TextInputType.number,
               style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black),
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
+              ),
               decoration: const InputDecoration(border: InputBorder.none),
             ),
           ),
           IconButton(
             onPressed: () => _amountController.clear(),
-            icon: Icon(Icons.close,
-                size: 18, color: isDark ? Colors.grey.shade400 : Colors.black54),
+            icon: Icon(
+              Icons.close,
+              size: 18,
+              color: isDark ? Colors.grey.shade400 : Colors.black54,
+            ),
           ),
         ],
       ),
@@ -263,10 +290,28 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
       crossAxisSpacing: 8,
       children: [
         _buildCategoryItem(0, Icons.restaurant, "Food", Colors.orange, isDark),
-        _buildCategoryItem(1, Icons.shopping_bag, "Shopping", Colors.pink, isDark),
-        _buildCategoryItem(2, Icons.directions_bus, "Transport", Colors.blue, isDark),
+        _buildCategoryItem(
+          1,
+          Icons.shopping_bag,
+          "Shopping",
+          Colors.pink,
+          isDark,
+        ),
+        _buildCategoryItem(
+          2,
+          Icons.directions_bus,
+          "Transport",
+          Colors.blue,
+          isDark,
+        ),
         _buildCategoryItem(3, Icons.receipt, "Bills", Colors.amber, isDark),
-        _buildCategoryItem(4, Icons.movie, "Entertainment", Colors.purple, isDark),
+        _buildCategoryItem(
+          4,
+          Icons.movie,
+          "Entertainment",
+          Colors.purple,
+          isDark,
+        ),
         _buildCategoryItem(5, Icons.favorite, "Health", Colors.teal, isDark),
         _buildCategoryItem(6, Icons.school, "Education", Colors.indigo, isDark),
         _buildCategoryItem(7, Icons.more_horiz, "Others", Colors.grey, isDark),
@@ -275,7 +320,12 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
   }
 
   Widget _buildCategoryItem(
-      int index, IconData icon, String label, Color color, bool isDark) {
+    int index,
+    IconData icon,
+    String label,
+    Color color,
+    bool isDark,
+  ) {
     final bool isSelected = _selectedCategory == index;
     return GestureDetector(
       onTap: () => setState(() => _selectedCategory = index),
@@ -291,9 +341,13 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
             child: Icon(icon, color: color),
           ),
           const SizedBox(height: 6),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 11, color: isDark ? Colors.grey.shade300 : Colors.black87)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: isDark ? Colors.grey.shade300 : Colors.black87,
+            ),
+          ),
         ],
       ),
     );
@@ -304,17 +358,21 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
       width: double.infinity,
       height: 54,
       child: ElevatedButton(
-        onPressed: () {
-           Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSuccessPage(amount: 93)));
-        },
+        onPressed: _onSendMoney,
+
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepPurple,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Send Money", style: TextStyle(fontSize: 16, color: Colors.white)),
+            Text(
+              "Send Money",
+              style: TextStyle(fontSize: 16, color: Colors.white),
+            ),
             SizedBox(width: 8),
             Icon(Icons.arrow_forward, color: Colors.white, size: 18),
           ],
@@ -327,27 +385,37 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark ? Colors.green.shade900.withOpacity(0.25) : Colors.green.shade50,
+        color: isDark
+            ? Colors.green.shade900.withOpacity(0.25)
+            : Colors.green.shade50,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
-          Icon(Icons.shield_outlined,
-              color: isDark ? Colors.green.shade300 : Colors.green.shade700),
+          Icon(
+            Icons.shield_outlined,
+            color: isDark ? Colors.green.shade300 : Colors.green.shade700,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Secure & Instant Transfers",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                        color: isDark ? Colors.white : Colors.black)),
-                Text("Your money is safe with end-to-end encryption",
-                    style: TextStyle(
-                        fontSize: 11,
-                        color: isDark ? Colors.grey.shade300 : Colors.black87)),
+                Text(
+                  "Secure & Instant Transfers",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+                Text(
+                  "Your money is safe with end-to-end encryption",
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark ? Colors.grey.shade300 : Colors.black87,
+                  ),
+                ),
               ],
             ),
           ),
