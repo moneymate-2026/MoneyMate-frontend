@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/qr_scanner/presentation/pages/payment_transfer.dart';
+import 'package:flutter_application_1/features/qr_scanner/presentation/repositeries/resolve_get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -26,35 +28,60 @@ class _QrScannerPageState extends State<QrScannerPage> {
       context,
     ).showSnackBar(const SnackBar(content: Text('Image selected')));
 
-    // ഇവിടെ gallery image scan ചെയ്യാനുള്ള logic പിന്നീട് add ചെയ്യാം
+          
   }
+     Future<void> handleQrCode(String code) async {
+  if (isScanned) return;
 
-  void handleQrCode(String code) {
-    if (isScanned) return;
+  setState(() {
+    isScanned = true;
+  });
 
-    setState(() {
-      isScanned = true;
-    });
+  controller.stop();
 
-    controller.stop();
+  try {
+    // Parse the scanned QR URL
+    final uri = Uri.parse(code);
+
+    // Get handle from QR
+    final handle = uri.queryParameters['handle'];
+
+    if (handle == null || handle.isEmpty) {
+      throw Exception('Invalid QR code');
+    }
 
     debugPrint('QR Code: $code');
+    debugPrint('Handle: $handle');
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Scanned: $code',
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
+    // Resolve account using handle
+    final account = await resolveaccnt(handle);
+
+    if (!mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PaymentPage(
+          account: account,
         ),
       ),
     );
+  } catch (e) {
+    if (!mounted) return;
 
-    // ഇവിടെ backend API call ചെയ്യാം
-    // ഉദാഹരണം:
-    // verifyQr(code);
+    setState(() {
+      isScanned = false;
+    });
+
+    controller.start();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Account not found: $e'),
+      ),
+    );
   }
-
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,11 +103,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
               }
             },
           ),
-
-          // DARK OVERLAY
           Positioned.fill(child: CustomPaint(painter: ScannerOverlay())),
-
-          // TOP BUTTONS
           Positioned(
             top: 0,
             left: 0,
@@ -249,7 +272,6 @@ class ScannerOverlay extends CustomPainter {
   }
 }
 
-// FOUR CORNERS
 class ScannerCorners extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -261,12 +283,12 @@ class ScannerCorners extends CustomPainter {
 
     const double length = 35;
 
-    // TOP LEFT
+
     canvas.drawLine(const Offset(0, length), const Offset(0, 0), paint);
 
     canvas.drawLine(const Offset(0, 0), const Offset(length, 0), paint);
 
-    // TOP RIGHT
+    
     canvas.drawLine(
       Offset(size.width - length, 0),
       Offset(size.width, 0),
@@ -275,7 +297,7 @@ class ScannerCorners extends CustomPainter {
 
     canvas.drawLine(Offset(size.width, 0), Offset(size.width, length), paint);
 
-    // BOTTOM LEFT
+    
     canvas.drawLine(
       Offset(0, size.height - length),
       Offset(0, size.height),

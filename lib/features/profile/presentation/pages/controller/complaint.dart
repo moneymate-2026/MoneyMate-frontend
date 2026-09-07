@@ -3,8 +3,6 @@ import 'package:flutter_application_1/features/authentication/datasources/dio_in
 import 'package:flutter_application_1/features/profile/presentation/pages/models/complaint_model.dart';
 
 
-
-//POSTING THE COMPLAINTS
 Future<Complaintmodel> postComplaint({
   required String title,
   required String description,

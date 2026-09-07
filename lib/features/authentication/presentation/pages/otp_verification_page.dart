@@ -118,10 +118,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       if (isVerified != true) {
         return;
       }
-      
 
       if (!mounted) return;
-         Navigator.pushAndRemoveUntil(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => CreatePinPage(
@@ -133,8 +132,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         ),
         (route) => false,
       );
-    
-    
     } catch (e) {
       ScaffoldMessenger.of(
         context,

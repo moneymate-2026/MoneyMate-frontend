@@ -29,8 +29,6 @@ void initState() {
   });
 }
   
-
-  //adding sound on payment
   Future<void> _playSuccessSound() async {
   try {
     await _audioPlayer.stop();
@@ -57,7 +55,25 @@ void initState() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+       backgroundColor: Colors.black,
+       appBar: AppBar(
+    
+        backgroundColor: Colors.transparent,
+    elevation: 0,
+    leading: IconButton(
+      onPressed: () {
+        Navigator.popUntil(
+          context,
+          (route) => route.isFirst,
+        );
+      },
+      icon: const Icon(
+        Icons.arrow_back,
+        color: Colors.white,
+      ),
+    ),
+  
+       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(
