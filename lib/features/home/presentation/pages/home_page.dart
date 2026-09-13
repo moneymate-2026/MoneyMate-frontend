@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/analytics/presentation/providers/analytics_providers.dart';
 import 'package:flutter_application_1/features/home/presentation/pages/widgets/balance_card.dart';
-import 'package:flutter_application_1/features/home/presentation/pages/widgets/coins_card.dart';
 import 'package:flutter_application_1/features/home/presentation/pages/widgets/greeting_header.dart';
 import 'package:flutter_application_1/features/home/presentation/pages/widgets/transaction_tile.dart';
+import 'package:flutter_application_1/features/wallet/presentation/pages/data/repositeries/transaction_getting.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/theme_controller.dart';
 
@@ -12,8 +13,8 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
-    final isDark = themeMode == ThemeMode.dark;
+    final result = ref.watch(transactionsProvider);
+    ref.watch(themeModeProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -25,12 +26,52 @@ class HomePage extends ConsumerWidget {
               const GreetingHeader(),
               const SizedBox(height: 24),
               const BalanceCard(balance: 0),
-              const SizedBox(height: 16),
-              const CoinsCard(coinBalance: 2450),
               const SizedBox(height: 24),
               _buildTransactionsHeader(context),
               const SizedBox(height: 12),
-              ..._buildTransactionList(),
+
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: Gettransinfo().getMyTransactions(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return const Text('Failed to load transactions');
+                  }
+
+                  final transactions = snapshot.data ?? [];
+
+                  if (transactions.isEmpty) {
+                    return const Text('No transactions yet');
+                  }
+
+                  return Column(
+                    children: transactions.map((transaction) {
+                      final isCredit =
+                          transaction['direction'] == 'credit';
+
+                      return TransactionTile(
+                        icon: isCredit
+                            ? Icons.arrow_downward
+                            : Icons.arrow_upward,
+                        iconColor:
+                            isCredit ? Colors.green : Colors.red,
+                        title: transaction['description'] ?? 'Transaction',
+                        subtitle: transaction['category']?.toString().isEmpty == true
+                            ? transaction['created_at'] ?? ''
+                            : transaction['category'] ?? '',
+                        amount:
+                            '${isCredit ? '+' : '-'}₹${transaction['amount'] ?? '0'}',
+                        isCredit: isCredit,
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -55,41 +96,5 @@ class HomePage extends ConsumerWidget {
       ],
     );
   }
-
-  List<Widget> _buildTransactionList() {
-    return [
-      const TransactionTile(
-        icon: Icons.wallet,
-        iconColor: Colors.green,
-        title: 'Salary',
-        subtitle: 'Today, 09:30 AM',
-        amount: '+₹45,000',
-        isCredit: true,
-      ),
-      const TransactionTile(
-        icon: Icons.play_arrow,
-        iconColor: Colors.black,
-        title: 'Netflix',
-        subtitle: 'Yesterday, 08:15 PM',
-        amount: '-₹649',
-        isCredit: false,
-      ),
-      const TransactionTile(
-        icon: Icons.shopping_cart,
-        iconColor: Colors.purple,
-        title: 'Grocery',
-        subtitle: 'Yesterday, 06:20 PM',
-        amount: '-₹1,250',
-        isCredit: false,
-      ),
-      const TransactionTile(
-        icon: Icons.check_circle,
-        iconColor: Colors.green,
-        title: 'Cashback Received',
-        subtitle: '2 May 2024, 11:45 AM',
-        amount: '+₹200',
-        isCredit: true,
-      ),
-    ];
-  }
 }
+

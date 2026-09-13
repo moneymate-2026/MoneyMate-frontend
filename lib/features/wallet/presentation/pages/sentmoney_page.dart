@@ -1,7 +1,13 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/core/theme/theme_controller.dart';
-
+import 'package:flutter_application_1/features/qr_scanner/presentation/pages/models/transfer_razo_model.dart';
+import 'package:flutter_application_1/features/qr_scanner/presentation/repositeries/resolve_get.dart';
+import 'package:flutter_application_1/features/wallet/presentation/pages/data/repositeries/transaction_getting.dart';
+import 'package:flutter_application_1/features/wallet/presentation/pages/data/repositeries/userget_num.dart';
+import 'package:flutter_application_1/features/qr_scanner/presentation/pages/models/paymentcat.dart';
+import 'package:flutter_application_1/features/wallet/presentation/pages/paymentsucceful_page.dart';
 import 'package:flutter_application_1/features/wallet/presentation/pages/transaction_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,36 +19,238 @@ class SendMoneyPage extends ConsumerStatefulWidget {
 }
 
 class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
+Future<void> _editCategory(String categoryId, String currentName) async {
+  final controller = TextEditingController(text: currentName);
+
+  final newName = await showDialog<String>(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        title: const Text('Edit Category'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: 'Enter category name',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final value = controller.text.trim();
+
+              if (value.isEmpty) return;
+
+              Navigator.pop(dialogContext, value);
+            },
+            child: const Text('Update'),
+          ),
+        ],
+      );
+    },
+  );
+
+  controller.dispose();
+
+  if (newName == null || newName.isEmpty) {
+    return;
+  }
+
+  await updatePaymentCategory(categoryId, newName);
+  if (!mounted) return;
+
+await _loadCategories();
+}
+
+
+   Future<void> _deleteCategory(String categoryId) async {
+  try {
+    await deletePaymentCategory(categoryId);
+
+    if (!mounted) return;
+
+    await _loadCategories();
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Failed to delete category: $e'),
+      ),
+    );
+  }
+}
+
+    Future<void> _showCategoryMenu(
+  String categoryId,
+  String currentName,
+) async {
+  final action = await showModalBottomSheet<String>(
+    context: context,
+    builder: (sheetContext) {
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Edit'),
+              onTap: () {
+                Navigator.pop(sheetContext, 'edit');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete),
+              title: const Text('Delete'),
+              onTap: () {
+                Navigator.pop(sheetContext, 'delete');
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+
+  if (!mounted) return;
+
+  if (action == 'edit') {
+    await _editCategory(categoryId, currentName);
+  }
+
+  if (action == 'delete') {
+        await _deleteCategory(categoryId);
+  }
+}
+
+
+
+  Future<void> _loadContacts() async {
+    try {
+      setState(() {
+        _isLoadingContacts = true;
+      });
+
+      final transactionService = Gettransinfo();
+
+      final transactions = await transactionService.getMyTransactions();
+      if (!mounted) return;
+
+      final List<Map<String, dynamic>> contacts = [];
+
+      for (final transaction in transactions) {
+        final from = transaction['from'];
+        final to = transaction['to'];
+
+        if (from != null) {
+          contacts.add(Map<String, dynamic>.from(from));
+        }
+
+        if (to != null) {
+          contacts.add(Map<String, dynamic>.from(to));
+        }
+      }
+
+      setState(() {
+        _contacts = contacts;
+        _isLoadingContacts = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoadingContacts = false;
+      });
+
+      debugPrint('Contacts Error: $e');
+    }
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      setState(() {
+        _isLoadingCategories = true;
+      });
+
+      final categories = await getPaymentCategories();
+
+      if (!mounted) return;
+
+      setState(() {
+        _categories = categories;
+        _isLoadingCategories = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoadingCategories = false;
+      });
+
+      debugPrint('Category Error: $e');
+    }
+  }
+
+  Future<void> _searchUser() async {
+    final phone = _searchController.text.trim();
+
+    if (phone.isEmpty) {
+      return;
+    }
+
+    try {
+      setState(() {
+        _isSearching = true;
+        _selectedUser = null;
+      });
+
+      final user = await lookupuser(phone);
+
+      if (!mounted) return;
+
+      setState(() {
+        _selectedUser = user;
+        _isSearching = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isSearching = false;
+        _selectedUser = null;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('User not found')));
+    }
+  }
+
+  Map<String, dynamic>? _selectedUser;
+  bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _amountController = TextEditingController(
     text: "500",
   );
 
-  int _selectedCategory = -1;
+  String? _selectedCategoryId;
+  List<PaymentCategoryModel> _categories = [];
+  bool _isLoadingCategories = false;
   int _selectedContactIndex = -1;
-
-  // TODO(API): Replace with GET /contacts/recent
-  final List<Map<String, dynamic>> _contacts = const [
-    {
-      "initials": "AR",
-      "name": "Arun Raj",
-      "handle": "@arunraj",
-      "bg": Colors.green,
-    },
-    {
-      "initials": "FA",
-      "name": "Fathima",
-      "handle": "@fathima12",
-      "bg": Colors.green,
-    },
-    {"initials": "AS", "name": "Aslam", "handle": "@aslam01", "bg": Colors.red},
-    {
-      "initials": "Nk",
-      "name": "Nikhil",
-      "handle": "@nikhil07",
-      "bg": Colors.red,
-    },
-  ];
+  List<Map<String, dynamic>> _contacts = [];
+  bool _isLoadingContacts = false;
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+    _loadContacts();
+  }
 
   @override
   void dispose() {
@@ -52,11 +260,122 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
   }
 
   Future<void> _onSendMoney() async {
+    if (_selectedUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a recipient')),
+      );
+      return;
+    }
+
+    if (_amountController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter amount')));
+      return;
+    }
+
     final token = await Navigator.push<String>(
       context,
       MaterialPageRoute(builder: (context) => const TransactionPinPage()),
     );
+
     if (token == null) return;
+
+    try {
+      final transfer = Transferrazomodel(
+        toHandle: _selectedUser!['handle'].toString(),
+        amount: _amountController.text.trim(),
+        idempotencyKey: DateTime.now().microsecondsSinceEpoch.toString(),
+        description: 'Money transfer',
+        categoryId: _selectedCategoryId ?? '',
+        transactionToken: token,
+      );
+
+      await createtransfer(transfer);
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentSuccessPage(
+            amount: double.parse(_amountController.text.trim()),
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Payment failed: $e')));
+    }
+  }
+
+  Future<void> _showAddCategoryDialog() async {
+    final controller = TextEditingController();
+
+    final name = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text("Add Category"),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: "Enter category name",
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final value = controller.text.trim();
+
+                if (value.isEmpty) {
+                  return;
+                }
+
+                Navigator.pop(dialogContext, value);
+              },
+              child: const Text("Add"),
+            ),
+          ],
+        );
+      },
+    );
+    await Future.delayed(const Duration(milliseconds: 500));
+    controller.dispose();
+
+    if (name == null || name.isEmpty) {
+      return;
+    }
+
+    try {
+      await createPaymentCategory(name);
+
+      if (!mounted) return;
+
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      if (!mounted) return;
+
+      await _loadCategories();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Category added successfully")),
+      );
+    } catch (e) {
+      if (!mounted) return;
+    }
   }
 
   @override
@@ -73,11 +392,16 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSearchBar(isDark),
+
+            if (_selectedUser != null) ...[
+              const SizedBox(height: 20),
+              _buildSearchedUser(isDark),
+            ],
             const SizedBox(height: 24),
             _buildRecentContactsHeader(),
             const SizedBox(height: 12),
             _buildRecentContacts(isDark),
-            if (isContactSelected) ...[
+            if (_selectedUser != null || isContactSelected) ...[
               const SizedBox(height: 24),
               const Text(
                 "Enter Amount",
@@ -91,7 +415,7 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
-              _buildCategoryGrid(isDark),
+              _buildCategoryField(isDark),
               const SizedBox(height: 28),
               _buildSendButton(),
               const SizedBox(height: 16),
@@ -127,9 +451,12 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
   Widget _buildSearchBar(bool isDark) {
     return TextField(
       controller: _searchController,
+      keyboardType: TextInputType.phone,
       style: TextStyle(color: isDark ? Colors.white : Colors.black),
+      textInputAction: TextInputAction.search,
+      onSubmitted: (_) => _searchUser(),
       decoration: InputDecoration(
-        hintText: "Enter name, phone number or UPI ID",
+        hintText: "Enter phone number or UPI ID",
         hintStyle: TextStyle(
           color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
         ),
@@ -137,10 +464,19 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
           Icons.search,
           color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
         ),
-        suffixIcon: Icon(
-          Icons.fullscreen,
-          color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
-        ),
+        suffixIcon: _isSearching
+            ? const Padding(
+                padding: EdgeInsets.all(12),
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
+            : IconButton(
+                icon: const Icon(Icons.arrow_forward),
+                onPressed: _searchUser,
+              ),
         filled: true,
         fillColor: isDark ? Bkcolors.darkcardcolor : Colors.grey.shade100,
         border: OutlineInputBorder(
@@ -168,22 +504,48 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
     );
   }
 
-  
   Widget _buildRecentContacts(bool isDark) {
-    return Row(
-      children: List.generate(_contacts.length, (index) {
-        final contact = _contacts[index];
-        final Color baseColor = contact["bg"] as Color;
-        return _buildContactAvatar(
-          index: index,
-          initials: contact["initials"] as String,
-          name: contact["name"] as String,
-          handle: contact["handle"] as String,
-          bg: baseColor,
-          fg: baseColor,
-          isDark: isDark,
-        );
-      }),
+    if (_isLoadingContacts) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_contacts.isEmpty) {
+      return const Text("No recent contacts", style: TextStyle(fontSize: 14));
+    }
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: List.generate(_contacts.length, (index) {
+          final contact = _contacts[index];
+
+          final String name =
+              contact['full_name']?.toString() ??
+              contact['username']?.toString() ??
+              'Unknown';
+
+          final String handle = contact['handle']?.toString() ?? '';
+
+          final String initials = name.isNotEmpty
+              ? name.substring(0, 1).toUpperCase()
+              : '?';
+
+          final Color bg = Colors.deepPurple.shade100;
+          final Color fg = Colors.deepPurple;
+
+          return SizedBox(
+            width: 85,
+            child: _buildContactAvatar(
+              index: index,
+              initials: initials,
+              name: name,
+              handle: handle,
+              bg: bg,
+              fg: fg,
+              isDark: isDark,
+            ),
+          );
+        }),
+      ),
     );
   }
 
@@ -198,38 +560,113 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
   }) {
     final bool isSelected = _selectedContactIndex == index;
 
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedContactIndex = _selectedContactIndex == index ? -1 : index;
-          });
-        },
-        child: Column(
-          children: [
-            CircleAvatar(
-              radius: 26,
-              backgroundColor: bg,
-              child: Text(
-                initials,
-                style: TextStyle(color: fg, fontWeight: FontWeight.bold),
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedContactIndex = _selectedContactIndex == index ? -1 : index;
+        });
+      },
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 26,
+            backgroundColor: bg,
+            child: Text(
+              initials,
+              style: TextStyle(color: fg, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            name,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? fg : (isDark ? Colors.white : Colors.black),
+            ),
+          ),
+          Text(
+            handle,
+            style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchedUser(bool isDark) {
+    final user = _selectedUser!;
+
+    final String name = user['full_name']?.toString() ?? 'Unknown User';
+    final String handle = user['handle']?.toString() ?? '';
+    final String phone = user['phone']?.toString() ?? '';
+
+    final String initial = name.isNotEmpty
+        ? name.substring(0, 1).toUpperCase()
+        : '?';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? Bkcolors.darkcardcolor : Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Bkcolors.primarycolor, width: 1.5),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 28,
+            backgroundColor: Bkcolors.primarycolor,
+            child: Text(
+              initial,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 6),
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: isSelected ? fg : (isDark ? Colors.white : Colors.black),
-              ),
+          ),
+
+          const SizedBox(width: 14),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  handle,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
+                  ),
+                ),
+
+                const SizedBox(height: 2),
+
+                Text(
+                  phone,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              handle,
-              style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
-            ),
-          ],
-        ),
+          ),
+
+          const Icon(Icons.check_circle, color: Colors.green, size: 24),
+        ],
       ),
     );
   }
@@ -279,68 +716,109 @@ class _SendMoneyPageState extends ConsumerState<SendMoneyPage> {
       ),
     );
   }
-
-  // TODO(API): Replace with GET /categories
-  Widget _buildCategoryGrid(bool isDark) {
-    return GridView.count(
-      crossAxisCount: 4,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 8,
-      children: [
-        _buildCategoryItem(0, Icons.restaurant, "Food", Colors.orange, isDark),
-        _buildCategoryItem(
-          1,
-          Icons.shopping_bag,
-          "Shopping",
-          Colors.pink,
-          isDark,
-        ),
-        _buildCategoryItem(
-          2,
-          Icons.directions_bus,
-          "Transport",
-          Colors.blue,
-          isDark,
-        ),
-        _buildCategoryItem(3, Icons.receipt, "Bills", Colors.amber, isDark),
-        _buildCategoryItem(
-          4,
-          Icons.movie,
-          "Entertainment",
-          Colors.purple,
-          isDark,
-        ),
-        _buildCategoryItem(5, Icons.favorite, "Health", Colors.teal, isDark),
-        _buildCategoryItem(6, Icons.school, "Education", Colors.indigo, isDark),
-        _buildCategoryItem(7, Icons.more_horiz, "Others", Colors.grey, isDark),
-      ],
+Widget _buildCategoryField(bool isDark) {
+  if (_isLoadingCategories) {
+    return const Center(
+      child: CircularProgressIndicator(),
     );
   }
 
+  return GridView.builder(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    itemCount: _categories.length + 1,
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 4,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 0.85,
+    ),
+    itemBuilder: (context, index) {
+      if (index == _categories.length) {
+        return GestureDetector(
+          onTap: _showAddCategoryDialog,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.deepPurple,
+                    width: 2,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.deepPurple,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Add',
+                style: TextStyle(fontSize: 11),
+              ),
+            ],
+          ),
+        );
+      }
+
+      final category = _categories[index];
+
+      return _buildCategoryItem(
+        index,
+        Icons.category_outlined,
+        category.name,
+        Colors.deepPurple,
+        isDark,
+        category.id,
+      );
+    },
+  );
+}
   Widget _buildCategoryItem(
     int index,
     IconData icon,
     String label,
     Color color,
     bool isDark,
+    String categoryId,
   ) {
-    final bool isSelected = _selectedCategory == index;
+    final bool isSelected = _selectedCategoryId == categoryId;
+
     return GestureDetector(
-      onTap: () => setState(() => _selectedCategory = index),
+      onTap: () {
+        setState(() {
+          _selectedCategoryId = categoryId;
+        });
+      },
+      onDoubleTap:(){
+           _showCategoryMenu(categoryId, label);
+      } ,
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: isDark ? color.withOpacity(0.25) : color.withOpacity(0.15),
-              shape: BoxShape.circle,
-              border: isSelected ? Border.all(color: color, width: 2) : null,
-            ),
-            child: Icon(icon, color: color),
+          Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? color.withOpacity(0.25)
+                      : color.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                  border: isSelected
+                      ? Border.all(color: color, width: 2)
+                      : null,
+                ),
+                child: Icon(icon, color: color),
+              ),
+
+
+            ],
           ),
+
           const SizedBox(height: 6),
+
           Text(
             label,
             style: TextStyle(

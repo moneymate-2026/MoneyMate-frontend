@@ -84,3 +84,51 @@ Future<void> createtransfer(Transferrazomodel transfer) async {
   }
 
   }
+
+
+
+  Future<void> updatePaymentCategory(
+  String id,
+  String name,
+) async {
+  try {
+    final response = await dio.put(
+      '/api/v1/payment/categories/$id',
+      data: {
+        'name': name,
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        response.data['message'] ?? 'Failed to update category',
+      );
+    }
+  } on DioException catch (e) {
+    throw Exception(
+      e.response?.data['message'] ??
+          e.message ??
+          'Failed to update category',
+    );
+  }
+}
+
+Future<void> deletePaymentCategory(String id) async {
+  try {
+    final response = await dio.delete(
+      '/api/v1/payment/categories/$id',
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception(
+        response.data['message'] ?? 'Failed to delete category',
+      );
+    }
+  } on DioException catch (e) {
+    throw Exception(
+      e.response?.data['message'] ??
+          e.message ??
+          'Failed to delete category',
+    );
+  }
+}

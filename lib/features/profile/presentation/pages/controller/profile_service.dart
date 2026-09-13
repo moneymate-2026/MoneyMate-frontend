@@ -44,12 +44,17 @@ Future<PresignResponse> getPresignedUrl(String contentType) async {
       throw Exception('Failed to save profile picture: ${e.message}');
     }
   }
-
-   Future<Map<String, dynamic>> getprofile() async {
+    Future<Map<String, dynamic>> getprofile() async {
   try {
     final response = await dio.get('/api/v1/profile/me');
 
-    return response.data['data'];
+    final data = response.data['data'];
+
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+
+    throw Exception('Invalid profile response format');
   } on DioException catch (e) {
     throw Exception('Failed to get profile: ${e.message}');
   }

@@ -18,70 +18,97 @@ class _QrScannerPageState extends State<QrScannerPage> {
   final MobileScannerController controller = MobileScannerController();
 
   final ImagePicker picker = ImagePicker();
-
   Future<void> uploadImage() async {
     final image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image == null || !mounted) return;
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Image selected')));
+    try {
+      final result = await controller.analyzeImage(image.path);
 
-          
-  }
-     Future<void> handleQrCode(String code) async {
-  if (isScanned) return;
+      if (!mounted) return;
 
-  setState(() {
-    isScanned = true;
-  });
+      if (result == null || result.barcodes.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No QR code found in this image')),
+        );
+        return;
+      }
 
-  controller.stop();
+      final code = result.barcodes.first.rawValue;
 
-  try {
-    // Parse the scanned QR URL
-    final uri = Uri.parse(code);
+      if (code == null || code.isEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Invalid QR code')));
+        return;
+      }
 
-    // Get handle from QR
-    final handle = uri.queryParameters['handle'];
+      await handleQrCode(code);
+    } catch (e) {
+      if (!mounted) return;
 
-    if (handle == null || handle.isEmpty) {
-      throw Exception('Invalid QR code');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unable to scan image: $e')));
     }
+  }
 
-    debugPrint('QR Code: $code');
-    debugPrint('Handle: $handle');
-
-    // Resolve account using handle
-    final account = await resolveaccnt(handle);
-
-    if (!mounted) return;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PaymentPage(
-          account: account,
-        ),
-      ),
-    );
-  } catch (e) {
-    if (!mounted) return;
+  Future<void> handleQrCode(String code) async {
+    if (isScanned) return;
 
     setState(() {
-      isScanned = false;
+      isScanned = true;
     });
 
-    controller.start();
+    controller.stop();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Account not found: $e'),
-      ),
-    );
+    try {
+      // Parse the scanned QR URL
+      final uri = Uri.parse(code);
+
+      // Get handle from QR
+      final handle = uri.queryParameters['handle'];
+
+      if (handle == null || handle.isEmpty) {
+        throw Exception('Invalid QR code');
+      }
+
+      debugPrint('QR Code: $code');
+      debugPrint('Handle: $handle');
+
+      // Resolve account using handle
+      final account = await resolveaccnt(handle);
+
+      if (!mounted) return;
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => PaymentPage(account: account)),
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        isScanned = false;
+      });
+
+      controller.start();
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isScanned = false;
+      });
+
+      controller.start();
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Account not found: $e')));
+    }
   }
-}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -283,12 +310,10 @@ class ScannerCorners extends CustomPainter {
 
     const double length = 35;
 
-
     canvas.drawLine(const Offset(0, length), const Offset(0, 0), paint);
 
     canvas.drawLine(const Offset(0, 0), const Offset(length, 0), paint);
 
-    
     canvas.drawLine(
       Offset(size.width - length, 0),
       Offset(size.width, 0),
@@ -297,7 +322,6 @@ class ScannerCorners extends CustomPainter {
 
     canvas.drawLine(Offset(size.width, 0), Offset(size.width, length), paint);
 
-    
     canvas.drawLine(
       Offset(0, size.height - length),
       Offset(0, size.height),

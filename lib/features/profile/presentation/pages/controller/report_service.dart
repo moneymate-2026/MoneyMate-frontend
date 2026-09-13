@@ -1,24 +1,24 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_application_1/features/authentication/datasources/dio_interceptor.dart';
-import 'package:flutter_application_1/features/profile/presentation/pages/models/complaint_model.dart';
 
-
-Future<Complaintmodel> postComplaint({
+Future<void> postReport({
+  required String handle,
   required String title,
   required String description,
 }) async {
   try {
-    final response = await dio.post(
-      "/api/v1/support/complaints",
+    await dio.post(
+      "/api/v1/support/reports",
       data: {
+        "Handle": handle,
         "title": title,
         "description": description,
       },
     );
-
-    return Complaintmodel.fromJson(response.data['data']);
   } on DioException catch (e) {
-    throw Exception(e.response?.data['message'] ?? 'Failed to submit complaint');
+    throw Exception(
+      e.response?.data['message'] ?? 'Failed to submit report',
+    );
   } catch (e) {
     throw Exception('Something went wrong: $e');
   }

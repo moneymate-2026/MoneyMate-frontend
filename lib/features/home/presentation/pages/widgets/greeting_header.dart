@@ -4,10 +4,40 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class GreetingHeader extends StatelessWidget {
   const GreetingHeader({super.key});
-Future<String> getUserName() async {
-  final prefs = await SharedPreferences.getInstance();
-  return prefs.getString("user_name") ?? "User";
-}
+
+  Future<String> getUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("user_name") ?? "User";
+  }
+
+  String getGreeting() {
+    final hour = DateTime.now().hour;
+
+    if (hour >= 5 && hour < 12) {
+      return 'Good Morning,';
+    } else if (hour >= 12 && hour < 17) {
+      return 'Good Afternoon,';
+    } else if (hour >= 17 && hour < 21) {
+      return 'Good Evening,';
+    } else {
+      return 'Good Night,';
+    }
+  }
+
+  String getGreetingEmoji() {
+    final hour = DateTime.now().hour;
+
+    if (hour >= 5 && hour < 12) {
+      return '🌤️';
+    } else if (hour >= 12 && hour < 17) {
+      return '☀️';
+    } else if (hour >= 17 && hour < 21) {
+      return '🌇';
+    } else {
+      return '🌙';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -16,57 +46,34 @@ Future<String> getUserName() async {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             FutureBuilder<String>(
-  future: getUserName(),
-  builder: (context, snapshot) {
-    final name = snapshot.data ?? "User";
+            FutureBuilder<String>(
+              future: getUserName(),
+              builder: (context, snapshot) {
+                final name = snapshot.data ?? "User";
 
-    return Text(
-      "Hello, $name",
-      style: const TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  },
-),
-            Text(
-              'Good Morning,',
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.color?.withOpacity(0.6),
-                fontSize: 14,
-              ),
+                return Text(
+                  "Hello, $name",
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
             ),
             Row(
               children: [
+                Text(
+                  getGreeting(),
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                    fontSize: 14,
+                  ),
+                ),
                 const SizedBox(width: 6),
-                const Text('👋', style: TextStyle(fontSize: 20)),
+                Text(getGreetingEmoji(), style: const TextStyle(fontSize: 20)),
               ],
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.notifications_none_rounded,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              onPressed: () {},
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfilePage()),
-                );
-              },
-              child: CircleAvatar(
-                backgroundColor: Colors.deepPurple.shade50,
-                child: const Icon(Icons.person, color: Colors.deepPurple),
-              ),
             ),
           ],
         ),

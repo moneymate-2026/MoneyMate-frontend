@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/core/theme/theme_controller.dart';
+import 'package:flutter_application_1/features/profile/presentation/pages/controller/report_service.dart';
+import 'package:flutter_application_1/features/wallet/presentation/pages/data/repositeries/userget_num.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ReportPage extends ConsumerStatefulWidget {
@@ -11,34 +13,66 @@ class ReportPage extends ConsumerStatefulWidget {
 }
 
 class _ReportPageState extends ConsumerState<ReportPage> {
+  Future<void> _searchUser() async {
+    final phone = _searchController.text.trim();
+
+    if (phone.isEmpty) {
+      return;
+    }
+
+    try {
+      setState(() {
+        _isSearching = true;
+        _selectedUser = null;
+      });
+
+      final user = await lookupuser(phone);
+
+      if (!mounted) return;
+
+      setState(() {
+        _selectedUser = user;
+        _isSearching = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isSearching = false;
+        _selectedUser = null;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('User not found')));
+    }
+  }
+
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
 
   final List<Map<String, String>> _reports = [];
 
-  final List<String> _users = [
-    "Muhammed",
-    "Ahmed",
-    "Rahman",
-    "Shahid",
-    "Abdulla",
-  ];
+  Map<String, dynamic>? _selectedUser;
+  bool _isSearching = false;
 
-  String? _selectedUser;
+  final TextEditingController _searchController = TextEditingController();
+
   bool _isSubmitting = false;
 
   @override
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
   Future<void> _handleSubmit() async {
     if (_selectedUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select a user")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please select a user")));
       return;
     }
 
@@ -52,11 +86,30 @@ class _ReportPageState extends ConsumerState<ReportPage> {
 
     setState(() => _isSubmitting = true);
 
-    await Future.delayed(const Duration(milliseconds: 600));
+    try {
+      await postReport(
+        handle: _selectedUser!['handle'].toString(),
+        title: _titleController.text.trim(),
+        description: _descController.text.trim(),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isSubmitting = false;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+
+      return;
+    }
 
     setState(() {
       _reports.insert(0, {
-        "reportedUser": _selectedUser!,
+        "reportedUser":
+            _selectedUser!['full_name']?.toString() ?? 'Unknown User',
         "title": _titleController.text.trim(),
         "description": _descController.text.trim(),
         "status": "Pending",
@@ -69,9 +122,9 @@ class _ReportPageState extends ConsumerState<ReportPage> {
       _descController.clear();
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Report submit aayi")),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Report submit aayi")));
   }
 
   @override
@@ -85,27 +138,41 @@ class _ReportPageState extends ConsumerState<ReportPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Report User
-            DropdownButtonFormField<String>(
-              value: _selectedUser,
+            TextField(
+              controller: _searchController,
+              keyboardType: TextInputType.phone,
+              textInputAction: TextInputAction.search,
+              onSubmitted: (_) => _searchUser(),
               decoration: InputDecoration(
                 labelText: "Report User",
+                hintText: "Enter phone number",
                 prefixIcon: const Icon(Icons.person_outline),
+                suffixIcon: _isSearching
+                    ? const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: _searchUser,
+                      ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              items: _users.map((user) {
-                return DropdownMenuItem(
-                  value: user,
-                  child: Text(user),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedUser = value;
-                });
-              },
             ),
+            if (_selectedUser != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                "${_selectedUser!['full_name'] ?? 'Unknown'}  "
+                "${_selectedUser!['handle'] ?? ''}",
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ],
 
             const SizedBox(height: 16),
 
@@ -162,9 +229,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: isDark
-                    ? Bkcolors.whitecolor
-                    : Bkcolors.themetext,
+                color: isDark ? Bkcolors.whitecolor : Bkcolors.themetext,
               ),
             ),
 
@@ -173,9 +238,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
             if (_reports.isEmpty)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 20),
-                child: Center(
-                  child: Text("Ippol reports onnum illa"),
-                ),
+                child: Center(child: Text("Ippol reports onnum illa")),
               )
             else
               ListView.builder(
@@ -198,8 +261,8 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     Color statusColor = status == "Resolved"
         ? Colors.green
         : status == "Rejected"
-            ? Colors.red
-            : Colors.orange;
+        ? Colors.red
+        : Colors.orange;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -208,9 +271,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
         color: isDark ? Bkcolors.darkcardcolor : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDark
-              ? Bkcolors.darkbordercolor
-              : Bkcolors.lightbordercolor,
+          color: isDark ? Bkcolors.darkbordercolor : Bkcolors.lightbordercolor,
         ),
       ),
       child: Column(
@@ -230,10 +291,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: statusColor.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),
@@ -254,18 +312,12 @@ class _ReportPageState extends ConsumerState<ReportPage> {
 
           Text(
             item["title"] ?? "",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
 
           const SizedBox(height: 6),
 
-          Text(
-            item["description"] ?? "",
-            style: const TextStyle(fontSize: 13),
-          ),
+          Text(item["description"] ?? "", style: const TextStyle(fontSize: 13)),
 
           if ((item["adminResponse"] ?? "").isNotEmpty)
             Container(
@@ -282,10 +334,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                 children: [
                   const Text(
                     "Admin Response:",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
                   ),
                   const SizedBox(height: 4),
                   Text(

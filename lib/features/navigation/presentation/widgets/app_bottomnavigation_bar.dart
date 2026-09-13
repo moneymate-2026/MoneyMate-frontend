@@ -67,7 +67,7 @@ class AppBottomNavBar extends ConsumerWidget {
 
         // 4 - PROFILE
         Icon(
-          Icons.savings_rounded,
+          Icons.person_3_outlined,
           color: isDark
               ? Bkcolors.whitecolor
               : Bkcolors.surfacecolor,

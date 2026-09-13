@@ -26,7 +26,7 @@ class WalletPage extends ConsumerWidget {
        
               const BalanceCard(balance: 25450.00),
               const SizedBox(height: 28),
-              const RecentTransactionsSection(),
+               RecentTransactionsSection(),
             ],
           ),
         ),

@@ -9,8 +9,8 @@ Future<Feedbackmodel> postfeed(Feedbackmodel feedback) async {
       "/api/v1/support/feedbacks",
       data: feedback.toJson(),
     );
-
-    return Feedbackmodel.fromJson(response.data);
+  return Feedbackmodel.fromJson(response.data['data']);
+      
   } on DioException catch (e) {
      
        String errorMessage = "Failed to submit feedback.";
