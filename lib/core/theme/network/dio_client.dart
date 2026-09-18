@@ -47,7 +47,20 @@
         print("REGISTER STATUS: ${e.response?.statusCode}");
         print("REGISTER RESPONSE: ${e.response?.data}");
 
-        throw Exception(e.response?.data.toString() ?? "Registration failed");
+       String errorMessage = "Failed to send OTP. Please try again.";
+
+  if (e.response?.statusCode == 409) {
+    errorMessage = "This account is already registered. Please login.";
+  } else if (e.response?.statusCode == 400) {
+    errorMessage = "Invalid email address.";
+  } else if (e.response?.statusCode == 500) {
+    errorMessage = "Server error. Please try again later.";
+  }
+
+  throw Exception(errorMessage);
+}
+     
       }
     }
-    }
+      
+  

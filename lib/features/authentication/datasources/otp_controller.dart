@@ -13,8 +13,34 @@ class OtpController {
         },
       );
     }on DioException  catch (e) {
-      throw Exception('Failed to send OTP: $e');
+     print("OTP SEND STATUS: ${e.response?.statusCode}");
+    print("OTP SEND RESPONSE: ${e.response?.data}");
+
+    final statusCode = e.response?.statusCode;
+
+    if (statusCode == 409) {
+      throw Exception(
+        "This email is already registered. Please login.",
+      );
+    } else if (statusCode == 500) {
+      throw Exception(
+        "Server error. Please try again later.",
+      );
+    } else if (statusCode == 400) {
+      throw Exception(
+        "Invalid email address.",
+      );
+    } else if (e.response == null) {
+      throw Exception(
+        "Unable to connect to the server. Please check your internet connection.",
+      );
+    } else {
+      throw Exception(
+        "Something went wrong. Please try again.",
+      );
     }
+    }
+
   }
 
 

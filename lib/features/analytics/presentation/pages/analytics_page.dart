@@ -28,7 +28,7 @@ class AnalyticsPage extends ConsumerWidget {
               const SizedBox(height: 28),
               const CategoryListSection(),
               const SizedBox(height: 28),
-              const OverviewSection(),
+              const Spendingoverview(),
             ],
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/core/theme/colors.dart';
 import 'package:flutter_application_1/core/theme/theme_controller.dart';
+import 'package:flutter_application_1/features/analytics/presentation/providers/analytics_providers.dart';
 import 'package:flutter_application_1/features/analytics/presentation/widgets/period_bill.dart';
 import 'package:flutter_application_1/features/analytics/presentation/widgets/spending_bar_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,11 +11,13 @@ class SpendingSummaryCard extends ConsumerWidget {
   const SpendingSummaryCard({super.key});
 
   static const _totalAmount = '₹25,450.00';
-  static const _comparisonLabel = 'vs April 2024';
+  static const _comparisonLabel = 'Daily View';
   static const _percentChange = '↓ 12.5%';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    
+    final result = ref.watch(periodspendingProvider);
     final themeMode = ref.watch(themeModeProvider);
     final isDark = themeMode == ThemeMode.dark;
 
@@ -45,10 +48,25 @@ class SpendingSummaryCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            _totalAmount,
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: textColor),
-          ),
+          result.when(
+  loading: () => const CircularProgressIndicator(),
+  error: (e, _) => Text('Error: $e'),
+  data: (categories) {
+    final total = categories.fold<double>(
+      0,
+      (sum, item) => sum + item.totalAmount,
+    );
+
+    return Text(
+      '₹${total.toStringAsFixed(2)}',
+      style: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.bold,
+        color: textColor,
+      ),
+    );
+  },
+),
           const SizedBox(height: 4),
           Row(
             children: [

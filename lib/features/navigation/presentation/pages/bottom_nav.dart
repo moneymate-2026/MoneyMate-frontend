@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/features/navigation/presentation/widgets/app_bottomnavigation_bar.dart';
+import 'package:flutter_application_1/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter_application_1/features/qr_scanner/presentation/pages/qr_scanner.dart';
-import 'package:flutter_application_1/features/savings/presentation/pages/savings_page.dart';
+import 'package:flutter_application_1/features/wallet/presentation/pages/wallet_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/nav_controller.dart';
 
 import '../../../home/presentation/pages/home_page.dart';
 import '../../../analytics/presentation/pages/analytics_page.dart';
-import '../../../wallet/presentation/pages/widgets/wallet_page.dart';
+
 
 
 class Bottomnav_page extends ConsumerWidget {
@@ -22,8 +23,8 @@ class Bottomnav_page extends ConsumerWidget {
       HomePage(),
       AnalyticsPage(),
       QrScannerPage(),  
-      WalletPage(),
-      SavingsPage(),
+       WalletPage(),
+       ProfilePage(),
     ];
 
     return Scaffold(

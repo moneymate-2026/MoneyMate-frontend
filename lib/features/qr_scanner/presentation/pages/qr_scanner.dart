@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/qr_scanner/presentation/pages/payment_transfer.dart';
+import 'package:flutter_application_1/features/qr_scanner/presentation/repositeries/resolve_get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -16,20 +18,43 @@ class _QrScannerPageState extends State<QrScannerPage> {
   final MobileScannerController controller = MobileScannerController();
 
   final ImagePicker picker = ImagePicker();
-
   Future<void> uploadImage() async {
     final image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image == null || !mounted) return;
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Image selected')));
+    try {
+      final result = await controller.analyzeImage(image.path);
 
-    // ഇവിടെ gallery image scan ചെയ്യാനുള്ള logic പിന്നീട് add ചെയ്യാം
+      if (!mounted) return;
+
+      if (result == null || result.barcodes.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No QR code found in this image')),
+        );
+        return;
+      }
+
+      final code = result.barcodes.first.rawValue;
+
+      if (code == null || code.isEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Invalid QR code')));
+        return;
+      }
+
+      await handleQrCode(code);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unable to scan image: $e')));
+    }
   }
 
-  void handleQrCode(String code) {
+  Future<void> handleQrCode(String code) async {
     if (isScanned) return;
 
     setState(() {
@@ -38,21 +63,50 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
     controller.stop();
 
-    debugPrint('QR Code: $code');
+    try {
+      // Parse the scanned QR URL
+      final uri = Uri.parse(code);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Scanned: $code',
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-    );
+      // Get handle from QR
+      final handle = uri.queryParameters['handle'];
 
-    // ഇവിടെ backend API call ചെയ്യാം
-    // ഉദാഹരണം:
-    // verifyQr(code);
+      if (handle == null || handle.isEmpty) {
+        throw Exception('Invalid QR code');
+      }
+
+      debugPrint('QR Code: $code');
+      debugPrint('Handle: $handle');
+
+      // Resolve account using handle
+      final account = await resolveaccnt(handle);
+
+      if (!mounted) return;
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => PaymentPage(account: account)),
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        isScanned = false;
+      });
+
+      controller.start();
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isScanned = false;
+      });
+
+      controller.start();
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Account not found: $e')));
+    }
   }
 
   @override
@@ -76,11 +130,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
               }
             },
           ),
-
-          // DARK OVERLAY
           Positioned.fill(child: CustomPaint(painter: ScannerOverlay())),
-
-          // TOP BUTTONS
           Positioned(
             top: 0,
             left: 0,
@@ -249,7 +299,6 @@ class ScannerOverlay extends CustomPainter {
   }
 }
 
-// FOUR CORNERS
 class ScannerCorners extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -261,12 +310,10 @@ class ScannerCorners extends CustomPainter {
 
     const double length = 35;
 
-    // TOP LEFT
     canvas.drawLine(const Offset(0, length), const Offset(0, 0), paint);
 
     canvas.drawLine(const Offset(0, 0), const Offset(length, 0), paint);
 
-    // TOP RIGHT
     canvas.drawLine(
       Offset(size.width - length, 0),
       Offset(size.width, 0),
@@ -275,7 +322,6 @@ class ScannerCorners extends CustomPainter {
 
     canvas.drawLine(Offset(size.width, 0), Offset(size.width, length), paint);
 
-    // BOTTOM LEFT
     canvas.drawLine(
       Offset(0, size.height - length),
       Offset(0, size.height),

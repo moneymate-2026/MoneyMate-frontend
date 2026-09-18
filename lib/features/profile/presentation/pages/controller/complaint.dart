@@ -3,8 +3,6 @@ import 'package:flutter_application_1/features/authentication/datasources/dio_in
 import 'package:flutter_application_1/features/profile/presentation/pages/models/complaint_model.dart';
 
 
-
-//POSTING THE COMPLAINTS
 Future<Complaintmodel> postComplaint({
   required String title,
   required String description,
@@ -18,7 +16,7 @@ Future<Complaintmodel> postComplaint({
       },
     );
 
-    return Complaintmodel.fromJson(response.data);
+    return Complaintmodel.fromJson(response.data['data']);
   } on DioException catch (e) {
     throw Exception(e.response?.data['message'] ?? 'Failed to submit complaint');
   } catch (e) {

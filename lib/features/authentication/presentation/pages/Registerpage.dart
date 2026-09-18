@@ -9,7 +9,7 @@ import 'package:flutter_application_1/features/authentication/presentation/pages
 import 'package:flutter_application_1/features/authentication/widgets/custom_textfield.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Registerpage extends ConsumerStatefulWidget { 
+class Registerpage extends ConsumerStatefulWidget {
   const Registerpage({super.key});
   @override
   ConsumerState<Registerpage> createState() => _RegisterPageState();
@@ -150,31 +150,65 @@ class _RegisterPageState extends ConsumerState<Registerpage> {
                             child: InkWell(
                               borderRadius: BorderRadius.circular(30),
                               onTap: agreeTerms
-                                 ? () async {
-        try {
-          final otpController = OtpController();
-          await otpController.sendOtp(emailController.text.trim());
+                                  ? () async {
+                                      try {
+                                        final otpController = OtpController();
+                                        await otpController.sendOtp(
+                                          emailController.text.trim(),
+                                        );
 
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OtpVerificationPage(
-                fullname: usernameController.text.trim(),
-                phone: phonenumberController.text.trim(),
-                email: emailController.text.trim(),
-                password: passwordController.text.trim(),
-              ),
-            ),
-          );
-        } catch (e) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(
-            SnackBar(content: Text(e.toString())),
-          );
-        }
-      }
-    : null,
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                OtpVerificationPage(
+                                                  fullname: usernameController
+                                                      .text
+                                                      .trim(),
+                                                  phone: phonenumberController
+                                                      .text
+                                                      .trim(),
+                                                  email: emailController.text
+                                                      .trim(),
+                                                  password: passwordController
+                                                      .text
+                                                      .trim(),
+                                                ),
+                                          ),
+                                        );
+                                      } catch (e) {
+                                        if (!context.mounted) return;
+
+                                        String message = e.toString();
+
+                                        if (message.startsWith("Exception: ")) {
+                                          message = message.replaceFirst(
+                                            "Exception: ",
+                                            "",
+                                          );
+                                        }
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: const Text(
+                                                "Registration Failed",
+                                              ),
+                                              content: Text(message),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: const Text("OK"),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      }
+                                    }
+                                  : null,
                               child: const Center(
                                 child: Text(
                                   "Create Account",

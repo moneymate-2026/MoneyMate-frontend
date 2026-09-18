@@ -1,44 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/analytics/presentation/providers/analytics_providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SpendingBarChart extends StatelessWidget {
+
+class SpendingBarChart extends ConsumerWidget {
   const SpendingBarChart({super.key});
 
-
-  static const _barHeights = [30.0, 20.0, 5.0, 70.0, 15.0, 90.0, 25.0, 0.0, 30.0, 70.0];
-  static const _labels = ['1 May', '8 May', '15 May', '22 May', '29 May'];
-
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 130,
-      child: Column(
-        children: [
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: _barHeights.map((h) {
-                return Container(
-                  width: 14,
-                  height: h,
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  decoration: BoxDecoration(
-                    color: h > 50 ? const Color(0xFF7C3AED) : const Color(0xFFD8CCF5),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: _labels
-                .map((l) => Text(l, style: const TextStyle(fontSize: 11, color: Colors.grey)))
-                .toList(),
-          ),
-        ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    final result = ref.watch(periodspendingProvider);
+
+    return result.when(
+      loading: () => const SizedBox(
+        height: 130,
+        child: Center(child: CircularProgressIndicator()),
       ),
+      error: (e, _) => Text('Error: $e'),
+      data: (items) {
+        if (items.isEmpty) {
+          return const Text('No period data');
+        }
+
+        final maxAmount = items
+            .map((e) => e.totalAmount)
+            .reduce((a, b) => a > b ? a : b);
+
+        return SizedBox(
+          height: 130,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: items.map((item) {
+              final height = maxAmount == 0
+                  ? 0.0
+                  : (item.totalAmount / maxAmount) * 100;
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: 24,
+                    height: height,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF7C3AED),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    item.period.substring(5),
+                    style: const TextStyle(fontSize: 11),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        );
+      },
     );
   }
 }

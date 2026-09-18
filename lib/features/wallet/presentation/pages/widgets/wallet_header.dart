@@ -25,16 +25,7 @@ class WalletHeader extends StatelessWidget {
         Stack(
           clipBehavior: Clip.none,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isDark ? Bkcolors.darkcardcolor : Bkcolors.whitecolor,
-                shape: BoxShape.circle,
-                border: Border.all(
-                    color: isDark ? Bkcolors.darkbordercolor : Bkcolors.lightbordercolor),
-              ),
-              child: Icon(Icons.notifications_none, size: 20, color: textColor),
-            ),
+           
      
             const Positioned(
               top: -2,
